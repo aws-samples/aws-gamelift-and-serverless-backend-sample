@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Game Service API An API for requesting new game sessions through matchmaking
+
+  '
+Globals:
+  Function:
+    Timeout: 100
+Outputs:
+  GameServiceAPI:
+    Description: API Gateway endpoint URL for Prod stage for Game Service API
+    Value:
+      Fn::Sub: https://${GameServiceAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+Resources:
+  DynamoDBAccessPolicy:
+    Properties:
+      Description: Policy for full gamelift access
+      Path: /
+      PolicyDocument:
+        Statement:
+        - Action:
+          - dynamodb:DeleteItem
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:dynamodb:'
+              - Ref: AWS::Region
+              - ':'
+              - Ref: AWS::AccountId
+              - :table/GameLiftExamplePlayerData
+        Version: '2012-10-17'
+    Type: AWS::IAM::ManagedPolicy
+  GameLiftAccessPolicy:
+    Properties:
+      Description: Policy for full gamelift access
+      Path: /
+      PolicyDocument:
+        Statement:
+        - Action: gamelift:*
+          Effect: Allow
+          Resource: '*'
+        Version: '2012-10-17'
+    Type: AWS::IAM::ManagedPolicy
+  GameLiftExamplePlayerData:
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: ID
+        AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+      - AttributeName: ID
+        KeyType: HASH
+      TableName: GameLiftExamplePlayerData
+    Type: AWS::DynamoDB::Table
+  GameServiceAPI:
+    Properties:
+      Auth:
+        DefaultAuthorizer: AWS_IAM
+        InvokeRole: NONE
+      StageName: Prod
+    Type: AWS::Serverless::Api
+  RequestGameSessionFunction:
+    Properties:
+      CodeUri: RequestGameSessionFunction
+      Events:
+        HelloWorld:
+          Properties:
+            Method: get
+            Path: /requestgamesession
+            RestApiId:
+              Ref: GameServiceAPI
+          Type: Api
+      Handler: requestgamesession.requestGameSession
+      Policies:
+      - Ref: GameLiftAccessPolicy
+      - Ref: DynamoDBAccessPolicy
+      Runtime: nodejs10.x
+    Type: AWS::Serverless::Function
+  RequestMatchStatusFunction:
+    Properties:
+      CodeUri: RequestMatchStatusFunction
+      Events:
+        HelloWorld:
+          Properties:
+            Method: get
+            Path: /requestmatchstatus
+            RestApiId:
+              Ref: GameServiceAPI
+          Type: Api
+      Handler: requestmatchstatus.requestMatchStatus
+      Policies:
+      - Ref: GameLiftAccessPolicy
+      - Ref: DynamoDBAccessPolicy
+      Runtime: nodejs10.x
+    Type: AWS::Serverless::Function
+  RequestMatchmakingFunction:
+    Properties:
+      CodeUri: RequestMatchmakingFunction
+      Events:
+        HelloWorld:
+          Properties:
+            Method: get
+            Path: /requestmatchmaking
+            RestApiId:
+              Ref: GameServiceAPI
+          Type: Api
+      Handler: requestmatchmaking.requestMatchMaking
+      Policies:
+      - Ref: GameLiftAccessPolicy
+      - Ref: DynamoDBAccessPolicy
+      Runtime: nodejs10.x
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31

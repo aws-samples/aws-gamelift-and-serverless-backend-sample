@@ -1,0 +1,8 @@
+#Ignore zips
+*.zip
+
+.DS_Store
+
+#Ignore the build files
+LinuxServerBuild/*GameLiftExampleServer*
+

@@ -1,0 +1,130 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Game Service API
+  An API for requesting new game sessions through matchmaking
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 100
+
+Resources:
+
+  # Table for player data
+  GameLiftExamplePlayerData:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: ID
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: ID
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      TableName: GameLiftExamplePlayerData
+
+  GameServiceAPI:
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: Prod
+        # Authenticate users with IAM (Cognito identities)
+        Auth:
+          DefaultAuthorizer: AWS_IAM
+          InvokeRole: NONE #Using the Lambda role instead of caller
+
+  GameLiftAccessPolicy:
+    Properties:
+      Description: Policy for full gamelift access
+      Path: /
+      PolicyDocument:
+        Statement:
+        - Action: gamelift:*
+          Effect: Allow
+          Resource: '*'
+        Version: '2012-10-17'
+    Type: AWS::IAM::ManagedPolicy
+
+  DynamoDBAccessPolicy:
+    Properties:
+      Description: Policy for full gamelift access
+      Path: /
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+            - 'dynamodb:DeleteItem'
+            - 'dynamodb:GetItem'
+            - 'dynamodb:PutItem'
+            - 'dynamodb:UpdateItem'
+          Resource:
+            'Fn::Join':
+              - ''
+              - - 'arn:aws:dynamodb:'
+                - Ref: 'AWS::Region'
+                - ':'
+                - Ref: 'AWS::AccountId'
+                - ':table/GameLiftExamplePlayerData'
+    Type: AWS::IAM::ManagedPolicy
+
+  RequestMatchmakingFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: gameservice/
+      Handler: requestmatchmaking.requestMatchMaking
+      Runtime: nodejs10.x
+      Policies:
+        - !Ref GameLiftAccessPolicy
+        - !Ref DynamoDBAccessPolicy
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            RestApiId: !Ref GameServiceAPI
+            Path: /requestmatchmaking
+            Method: get
+  RequestMatchStatusFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: gameservice/
+      Handler: requestmatchstatus.requestMatchStatus
+      Runtime: nodejs10.x
+      Policies:
+        - !Ref GameLiftAccessPolicy
+        - !Ref DynamoDBAccessPolicy
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            RestApiId: !Ref GameServiceAPI
+            Path: /requestmatchstatus
+            Method: get
+  # Not used by the example but this method can be used to request game sessions directly
+  RequestGameSessionFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: gameservice/
+      Handler: requestgamesession.requestGameSession
+      Runtime: nodejs10.x
+      Policies:
+        - !Ref GameLiftAccessPolicy
+        - !Ref DynamoDBAccessPolicy
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            RestApiId: !Ref GameServiceAPI
+            Path: /requestgamesession
+            Method: get
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  GameServiceAPI:
+    Description: "API Gateway endpoint URL for Prod stage for Game Service API"
+    Value: !Sub "https://${GameServiceAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

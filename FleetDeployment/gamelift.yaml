@@ -1,0 +1,144 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Unity Game Server Example GameLift Resources
+
+Parameters: 
+  BuildId: 
+    Type: String
+    Default: v1
+    Description: The build version identifier
+  PreRequirementsStackName:
+    Type: String
+    Default: GameLiftExamplePreRequirements
+    Description: The name of the stack that defines the role for the gamelift instances
+
+Resources:
+  # Matchmaking Ruleset
+  MatchmakingRuleSet:
+    Type: "AWS::GameLift::MatchmakingRuleSet"
+    Properties:
+      Name: "MyRuleSet"
+      RuleSetBody: !Sub |
+        {
+            "name": "simplerule",
+            "ruleLanguageVersion": "1.0",
+            "playerAttributes": [{
+                "name": "skill",
+                "type": "number",
+                "default": 10
+            }],
+            "teams": [{
+                "name": "oneteam",
+                "maxPlayers": 10,
+                "minPlayers": 4
+            }],
+            "rules": [{
+                "name": "FairSkill",
+                "description": "The average skill of players is within 10 points from the average skill of all players in the match",
+                "type": "distance",
+                // get skill value for each player
+                "measurements": [ "teams[oneteam].players.attributes[skill]" ],
+                // get skill values for all players and average to produce an overall average
+                "referenceValue": "avg(teams[oneteam].players.attributes[skill])",
+                "maxDistance": 10
+            }],
+            "expansions": [{
+                "target": "teams[oneteam].minPlayers",
+                "steps": [{
+                    "waitTimeSeconds": 10,
+                    "value": 2
+                }]
+            }]
+        }
+
+  # Queue to pass sessions to the fleet through the alias
+  Queue:
+    Type: "AWS::GameLift::GameSessionQueue"
+    Properties:
+      Name: "MyGameSessionQueue"
+      TimeoutInSeconds: 50
+      Destinations:
+        # DestinationArn can be either an Alias arn or Fleet arn that you own
+        - DestinationArn:
+            !Join
+              - ''
+              - - 'arn:aws:gamelift:'
+                - !Ref "AWS::Region"
+                - '::alias/'
+                - !Ref Alias
+      # Optional player latency policies
+      #PlayerLatencyPolicies:
+      #  - MaximumIndividualPlayerLatencyMilliseconds: 1000
+      #    PolicyDurationSeconds: 60
+
+  # Configuration that uses the rule set
+  MatchMakingConfiguration:
+    Type: "AWS::GameLift::MatchmakingConfiguration"
+    Properties:
+      Name: "ExampleGameConfiguration"
+      AcceptanceRequired: false
+      AdditionalPlayerCount: 0
+      RequestTimeoutSeconds: 25
+      BackfillMode: "MANUAL"
+      Description: "A basic matchmaking configuration"
+      # Just some example properties
+      GameProperties:
+        - Key: "gamemode"
+          Value: "classic"
+      GameSessionQueueArns:
+        - !GetAtt Queue.Arn
+      RuleSetName: !Ref MatchmakingRuleSet
+
+  # The Fleet
+  Fleet: 
+    Type: AWS::GameLift::Fleet
+    Properties: 
+      Name: "UnityExampleLinuxFleet"
+      Description: "A Unity Example Linux Fleet"
+      BuildId: 
+        Ref: "BuildId"
+      # Run 2 game servers in different ports with different log files
+      RuntimeConfiguration:
+        GameSessionActivationTimeoutSeconds: 300
+        MaxConcurrentGameSessionActivations: 1
+        ServerProcesses:
+          - ConcurrentExecutions: 1
+            LaunchPath: /local/game/GameLiftExampleServer.x86_64
+            Parameters: -logFile /local/game/logs/myserver1935.log -port 1935
+          - ConcurrentExecutions: 1
+            LaunchPath: /local/game/GameLiftExampleServer.x86_64
+            Parameters: -logFile /local/game/logs/myserver7777.log -port 7777
+      EC2InstanceType: "c5.large"
+      # We want exactly one instance (no scaling allowed in the example)
+      DesiredEC2Instances: "1"
+      #Create TLS certificate for optional encrypted client-server traffic
+      CertificateConfiguration:
+        CertificateType: GENERATED
+      InstanceRoleARN:
+        Fn::ImportValue:
+          !Sub "${PreRequirementsStackName}-InstanceRole"
+      #Allow TCP inbound access to our game servers
+      EC2InboundPermissions: 
+        - 
+          FromPort: "1935"
+          ToPort: "1935"
+          IpRange: "0.0.0.0/0"
+          Protocol: "TCP"
+        - 
+          FromPort: "7777"
+          ToPort: "7777"
+          IpRange: "0.0.0.0/0"
+          Protocol: "TCP"
+
+  # Alias that references the fleet
+  Alias: 
+    Type: AWS::GameLift::Alias
+    Properties: 
+      Name: "UnityExampleGameServerAlias"
+      Description: "An alias routing traffic to the fleet"
+      RoutingStrategy: 
+        Type: "SIMPLE"
+        FleetId: !Ref Fleet
+ 

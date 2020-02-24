@@ -1,0 +1,18 @@
+<linker>
+<assembly fullname="UnityEngine">
+    <type fullname="UnityEngine.Networking.UnityWebRequest" preserve="all" />
+    <type fullname="UnityEngine.Networking.UploadHandlerRaw" preserve="all" />
+    <type fullname="UnityEngine.Networking.UploadHandler" preserve="all" />
+    <type fullname="UnityEngine.Networking.DownloadHandler" preserve="all" />
+    <type fullname="UnityEngine.Networking.DownloadHandlerBuffer" preserve="all" />
+</assembly>
+<assembly fullname="mscorlib">
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+</assembly>
+<assembly fullname="System">
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+</assembly>
+<assembly fullname="AWSSDK.Core" preserve="all"/>
+<assembly fullname="AWSSDK.CognitoIdentity" preserve="all"/>
+<assembly fullname="AWSSDK.SecurityToken" preserve="all"/>
+</linker>

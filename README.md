@@ -77,6 +77,7 @@ The project contains:
     * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment
     * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 1
     * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region
+    * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
 6. **Build the server build** (`FleetDeployment/deployBuildAndReplaceFleet.sh`)
     * Go to File -> Build Settings
     * Go to "Player Settings" and find the Scripting Define Symbols ("Player settings" -> "Player" -> "Other Settings" -> "Scripting Define Symbol")

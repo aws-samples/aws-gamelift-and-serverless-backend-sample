@@ -49,8 +49,8 @@ The project contains:
 3. **Install SAM CLI**
     * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 5. **Install external dependencies**
-    1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server SDK (4.5) and **copy** the dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder
-    2. [Mobile SDK for Unity](https://docs.aws.amazon.com/mobile/sdkforunity/developerguide/what-is-unity-plugin.html): **Download** the Mobile SDK for Unity and add the package **AWSSDK.IdentityManagement.<versionnumber>.unitypackage** to the Unity Project. **NOTE**: You need to have the Unity Project found in the `GameLiftExampleUnityProject` open in order to do this.
+    1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server SDK (4.5) and **copy** the dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder. Visual Studio is the best tool to build the project with.
+    2. [Mobile SDK for Unity](https://docs.aws.amazon.com/mobile/sdkforunity/developerguide/what-is-unity-plugin.html): **Download** the Mobile SDK for Unity and add the package **AWSSDK.IdentityManagement._versionnumber_.unitypackage** to the Unity Project. **NOTE**: You need to have the Unity Project found in the `GameLiftExampleUnityProject` open in order to do this.
     3. [Signature Calculation Example](https://docs.aws.amazon.com/AmazonS3/latest/API/samples/AmazonS3SigV4_Samples_CSharp.zip): **Download** the S3 example for signing API Requests and **copy the folders** `Signers` and `Util` to `GameLiftExampleUnityProject/Assets/Dependencies/SignersAndUtilsFromS3SigningExample/` folder. We will use these to sign the requests against API Gateway with Cognito credentials
 
 # Deployment

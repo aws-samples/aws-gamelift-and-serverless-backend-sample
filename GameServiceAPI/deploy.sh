@@ -13,5 +13,5 @@ fi
 
 # Build, package and deploy the backend
 sam build
-sam package --s3-bucket $deploymentbucketname --output-template gameservice.yaml
+sam package --s3-bucket $deploymentbucketname --output-template-file gameservice.yaml
 sam deploy --template-file gameservice.yaml --region $region --capabilities CAPABILITY_IAM --stack-name gameservice-backend

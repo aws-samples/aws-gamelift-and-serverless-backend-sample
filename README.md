@@ -48,15 +48,17 @@ The project contains:
     * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
 3. **Install SAM CLI**
     * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-5. **Install external dependencies**
+4. **Install external dependencies**
     1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server SDK (4.5) and **copy** the dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder. Visual Studio is the best tool to build the project with.
     2. [Mobile SDK for Unity](https://docs.aws.amazon.com/mobile/sdkforunity/developerguide/what-is-unity-plugin.html): **Download** the Mobile SDK for Unity and add the package **AWSSDK.IdentityManagement._versionnumber_.unitypackage** to the Unity Project. **NOTE**: You need to have the Unity Project found in the `GameLiftExampleUnityProject` open in order to do this. Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended).
     3. [Signature Calculation Example](https://docs.aws.amazon.com/AmazonS3/latest/API/samples/AmazonS3SigV4_Samples_CSharp.zip): **Download** the S3 example for signing API Requests and **copy the folders** `Signers` and `Util` to `GameLiftExampleUnityProject/Assets/Dependencies/` folder. We will use these to sign the requests against API Gateway with Cognito credentials. After this you should not see any errors in your Unity console.
+5. **Select deployment Region**
+    * The solution can be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which Regions can I place a FlexMatch matchmaker?"
 
 # Deployment
 
-1. **Deploy the Pre-Requirements** (`FleetDeployment/deployPreRuirements.sh`)
-    * Open file FleetDeployment/deployPreRuirements.sh in your favourite text editor
+1. **Deploy the Pre-Requirements** (`FleetDeployment/deployPreRequirements.sh`)
+    * Open file FleetDeployment/deployPreRequirements.sh in your favourite text editor
     * Set the region variable in the script to your selected region
     * Run the script (`cd FleetDeployment && sh deployPreRequirements.sh && cd ..`)
 2. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
@@ -78,15 +80,15 @@ The project contains:
     * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 1
     * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region
     * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
-6. **Build the server build** (`FleetDeployment/deployBuildAndReplaceFleet.sh`)
-    * Go to File -> Build Settings
+6. **Build the server build**
+    * In Unity go to "File -> Build Settings"
     * Go to "Player Settings" and find the Scripting Define Symbols ("Player settings" -> "Player" -> "Other Settings" -> "Scripting Define Symbol")
     * Replace the the Scripting Define Symbol with `SERVER`. Remember to press Enter after changing the value. C# scripts will use this directive to include server code and exclude client code
     * Close Player Settings and return to Build Settings
     * Switch the target platform to `Linux`. If you don't have it available, you need to install Linux platform support in Unity Hub.
     * Check the box `Server Build`
     * Build the project to the `LinuxServerBuild` folder (Click "Build" and in new window choose "LinuxServerBuild" folder, enter "GameLiftExampleServer" in "Save as" field and click "Save")
-7. **Deploy the build and the GameLift resources** (`FleetDeployment/gamelift.yaml`)
+7. **Deploy the build and the GameLift resources** (`FleetDeployment/deployBuildAndUpdateGameLiftResources.sh`)
     * Open file FleetDeployment/deployBuildAndUpdateGameLiftResources.sh in your favourite text editor
     * Set the region variable in the script to your selected region
     * Run the script (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)

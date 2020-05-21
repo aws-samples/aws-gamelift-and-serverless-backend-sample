@@ -53,7 +53,7 @@ The project contains:
     2. [Mobile SDK for Unity](https://docs.aws.amazon.com/mobile/sdkforunity/developerguide/what-is-unity-plugin.html): **Download** the Mobile SDK for Unity and add the package **AWSSDK.IdentityManagement._versionnumber_.unitypackage** to the Unity Project. **NOTE**: You need to have the Unity Project found in the `GameLiftExampleUnityProject` open in order to do this. Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended).
     3. [Signature Calculation Example](https://docs.aws.amazon.com/AmazonS3/latest/API/samples/AmazonS3SigV4_Samples_CSharp.zip): **Download** the S3 example for signing API Requests and **copy the folders** `Signers` and `Util` to `GameLiftExampleUnityProject/Assets/Dependencies/` folder. We will use these to sign the requests against API Gateway with Cognito credentials. After this you should not see any errors in your Unity console.
 5. **Select deployment Region**
-    * The solution can be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which Regions can I place a FlexMatch matchmaker?"
+    * The solution can be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
 
 # Deployment
 

@@ -48,8 +48,10 @@ The project contains:
     * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
 3. **Install SAM CLI**
     * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+4. **Install Node.js**
+    * Required for the SAM build: [Node.js Downloads](https://nodejs.org/en/download/)
 4. **Install external dependencies**
-    1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server SDK (4.5) and **copy** the dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder. Visual Studio is the best tool to build the project with.
+    1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server SDK (4.5) and **copy** all of the dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder. Visual Studio is the best tool to build the project with.
     2. [Mobile SDK for Unity](https://docs.aws.amazon.com/mobile/sdkforunity/developerguide/what-is-unity-plugin.html): **Download** the Mobile SDK for Unity and add the package **AWSSDK.IdentityManagement._versionnumber_.unitypackage** to the Unity Project. **NOTE**: You need to have the Unity Project found in the `GameLiftExampleUnityProject` open in order to do this. Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended).
     3. [Signature Calculation Example](https://docs.aws.amazon.com/AmazonS3/latest/API/samples/AmazonS3SigV4_Samples_CSharp.zip): **Download** the S3 example for signing API Requests and **copy the folders** `Signers` and `Util` to `GameLiftExampleUnityProject/Assets/Dependencies/` folder. We will use these to sign the requests against API Gateway with Cognito credentials. After this you should not see any errors in your Unity console.
 5. **Select deployment Region**
@@ -77,7 +79,7 @@ The project contains:
     * You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation or from the API Gateway console (make sure to have the `/Prod/` in the url)
 5. **Set the Cognito Identity Pool configuration** (`GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`)
     * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment
-    * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 1
+    * You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 1
     * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region
     * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
 6. **Build the server build**
@@ -101,7 +103,7 @@ The project contains:
     * Build the client to any folder (Click "Build", select your folder and click "Save")
     * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities. If you run multiple copies of the build, they will have the same identity (and hence same player ID) and will NOT be matched.
     * You will see a 10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 10 seconds
-    * The clients need to connect within 20 seconds as this is the timeout value for the matchmaking
+    * **The clients need to connect within 20 seconds** as this is the timeout value for the matchmaking
 
 # Implementation Overview
 

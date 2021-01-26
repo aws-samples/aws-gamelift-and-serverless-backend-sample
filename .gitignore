@@ -1,8 +1,5 @@
-#Ignore zips
 *.zip
-
 .DS_Store
-
-#Ignore the build files
+FleetDeployment/Out-Null
+GameServiceAPI/.aws-sam/
 LinuxServerBuild/*GameLiftExampleServer*
-

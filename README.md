@@ -12,7 +12,7 @@
     + [Game Client](#game-client)
   * [License](#license)
 
-This repository contains a simple 3D game GameLift example with a backend service designed especially for getting started with MacOS and mobile development and leveraging deployment automation.
+This repository contains a simple 3D game GameLift example with a backend service designed especially for getting started with MacOS, Windows and mobile development and leveraging deployment automation.
 
 # Key Features
 * Uses CloudFormation to automate the deployment of all resources
@@ -20,7 +20,7 @@ This repository contains a simple 3D game GameLift example with a backend servic
 * Leverages FlexMatch matchmaking
 * Runs on Amazon Linux 2 on the GameLift service
 * Uses Cognito Identity Pools to store user identities and authenticate them against the backend
-* Deployed with shell scripts
+* Deployed with shell (MacOS) or PowerShell (Windows) scripts
 * Includes configuration to push custom logs and metrics to CloudWatch with CloudWatch Agent
 * Client works on mobile platforms
 * Uses Unity engine for server and client
@@ -57,7 +57,7 @@ The project contains:
 5. **Select deployment Region**
     * The solution can be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
 
-# Deployment
+# Deployment with Batch Scripts
 
 1. **Deploy the Pre-Requirements** (`FleetDeployment/deployPreRequirements.sh`)
     * Open file FleetDeployment/deployPreRequirements.sh in your favourite text editor
@@ -104,6 +104,55 @@ The project contains:
     * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities. If you run multiple copies of the build, they will have the same identity (and hence same player ID) and will NOT be matched.
     * You will see a 10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 10 seconds
     * **The clients need to connect within 20 seconds** as this is the timeout value for the matchmaking
+
+# Deployment with PowerShell Scripts
+
+1. **Deploy the Pre-Requirements** (`FleetDeployment/deployPreRequirements.ps1`)
+    * Open file FleetDeployment/deployPreRequirements.ps1 in your favourite text editor
+    * Set the region variable in the script to your selected region
+    * Run the `deployPreRequirements.sh` script
+2. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
+    * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
+    * Replace the `role_arn` value with role provided as output by the previous script
+    * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 1
+3. **Deploy the Backend API with SAM** (`GameServiceAPI/deploy.ps1`)
+    * Make sure you have the SAM CLI installed
+    * Open file GameServiceAPI/deploy.ps1 in your favourite text editor
+    * Modify the script to set the `region` variable to your selected region
+    * Modify the script to set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
+    * Run the `deploy.ps1` script
+4. **Set the API endpoint to the Unity Project**
+    * Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended)
+    * Set the value of `static string apiEndpoint` to the endpoint created by the backend deployment in `GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`
+    * You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation or from the API Gateway console (make sure to have the `/Prod/` in the url)
+5. **Set the Cognito Identity Pool configuration** (`GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`)
+    * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment
+    * You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 1
+    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region
+    * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
+6. **Build the server build**
+    * In Unity go to "File -> Build Settings"
+    * Go to "Player Settings" and find the Scripting Define Symbols ("Player settings" -> "Player" -> "Other Settings" -> "Scripting Define Symbol")
+    * Replace the the Scripting Define Symbol with `SERVER`. Remember to press Enter after changing the value. C# scripts will use this directive to include server code and exclude client code
+    * Close Player Settings and return to Build Settings
+    * Switch the target platform to `Linux`. If you don't have it available, you need to install Linux platform support in Unity Hub.
+    * Check the box `Server Build`
+    * Build the project to the `LinuxServerBuild` folder (Click "Build" and in new window choose "LinuxServerBuild" folder, enter "GameLiftExampleServer" in "Save as" field and click "Save")
+7. **Deploy the build and the GameLift resources** (`FleetDeployment/deployBuildAndUpdateGameLiftResources.ps1`)
+    * Open file FleetDeployment/deployBuildAndUpdateGameLiftResources.ps1 in your favourite text editor
+    * Set the region variable in the script to your selected region
+    * Run the script `deployBuildAndUpdateGameLiftResources.ps1`
+    * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
+    * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
+8. **Build and run two clients**
+    * Set the the Scripting Define Symbol `CLIENT` in the *Player Settings* in the Unity Project (File -> "Build Settings" -> "Player settings" → "Player" → "Other Settings" → "Scripting Define Symbol" → Replace completely to "CLIENT")
+    * Open the scene "GameWorld" in Scenes/GameWorld
+    * Open Build Settings (File -> Build Settings) in Unity and set target platform to `Mac OSX` (or whatever the platform you are using) and *uncheck* the box `Server Build`
+    * Build the client to any folder (Click "Build", select your folder and click "Save")
+    * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities. If you run multiple copies of the build, they will have the same identity (and hence same player ID) and will NOT be matched.
+    * You will see a 10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 10 seconds
+    * **The clients need to connect within 20 seconds** as this is the timeout value for the matchmaking
+
 
 # Implementation Overview
 

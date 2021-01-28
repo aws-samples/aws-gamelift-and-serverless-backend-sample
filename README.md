@@ -14,6 +14,8 @@
 
 This repository contains a simple 3D game GameLift example with a backend service designed especially for getting started with MacOS and mobile development and leveraging deployment automation.
 
+**Note**: This repository exists for **example purposes only** and you always need to build and validate your own solution for production use. There is a known limitation as we are calling describe-matchmaking on a recurring interval to request match status which can hit the API limits with a larger player base. To mitigate this, you would use [FlexMatch events](https://docs.aws.amazon.com/gamelift/latest/flexmatchguide/match-events.html) and cache the result in DynamoDB for example.
+
 # Key Features
 * Uses CloudFormation to automate the deployment of all resources
 * Uses a Serverless API to initiate matchmaking built with Serverless Application Model

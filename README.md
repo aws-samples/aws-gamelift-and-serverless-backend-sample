@@ -57,7 +57,7 @@ The project contains:
 5. **Select deployment Region**
     * The solution can be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
 
-# Deployment with Batch Scripts
+# Deployment with Bash Scripts
 
 1. **Deploy the Pre-Requirements** (`FleetDeployment/deployPreRequirements.sh`)
     * Open file FleetDeployment/deployPreRequirements.sh in your favourite text editor
@@ -110,7 +110,7 @@ The project contains:
 1. **Deploy the Pre-Requirements** (`FleetDeployment/deployPreRequirements.ps1`)
     * Open file FleetDeployment/deployPreRequirements.ps1 in your favourite text editor
     * Set the region variable in the script to your selected region
-    * Run the `deployPreRequirements.sh` script
+    * Run the `deployPreRequirements.ps1` script
 2. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
     * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
     * Replace the `role_arn` value with role provided as output by the previous script
@@ -147,7 +147,7 @@ The project contains:
 8. **Build and run two clients**
     * Set the the Scripting Define Symbol `CLIENT` in the *Player Settings* in the Unity Project (File -> "Build Settings" -> "Player settings" → "Player" → "Other Settings" → "Scripting Define Symbol" → Replace completely to "CLIENT")
     * Open the scene "GameWorld" in Scenes/GameWorld
-    * Open Build Settings (File -> Build Settings) in Unity and set target platform to `Mac OSX` (or whatever the platform you are using) and *uncheck* the box `Server Build`
+    * Open Build Settings (File -> Build Settings) in Unity and set target platform to `Windows` (or whatever the platform you are using) and *uncheck* the box `Server Build`
     * Build the client to any folder (Click "Build", select your folder and click "Save")
     * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities. If you run multiple copies of the build, they will have the same identity (and hence same player ID) and will NOT be matched.
     * You will see a 10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 10 seconds

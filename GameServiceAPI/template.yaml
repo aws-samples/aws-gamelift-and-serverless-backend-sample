@@ -12,6 +12,12 @@ Globals:
   Function:
     Timeout: 100
 
+Parameters: 
+  BackendStackName:
+    Type: String
+    Default: gameservice-backend
+    Description: The name of the stack for the backend
+
 Resources:
 
   # Table for player data
@@ -26,6 +32,44 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
       TableName: GameLiftExamplePlayerData
+
+  # Table for Matchmaking events data
+  GameLiftExampleMatchmakingTickets:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: TicketID
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: TicketID
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      TableName: GameLiftExampleMatchmakingTickets
+      # Using a TTL atrribute to remove tickets after one day
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: True
+
+  # SNS Topic for Matchmaking events
+  MatchmakingEventsSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "GameLiftExampleMatchmakingEventsSNSTopic"
+  GameLiftAccessSNSPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties: 
+      PolicyDocument:
+        Id: MyTopicPolicy
+        Version: '2012-10-17'
+        Statement:
+          - Sid: My-statement-id
+            Effect: Allow
+            Principal:
+              Service: gamelift.amazonaws.com
+            Action: sns:Publish
+            Resource: !Ref MatchmakingEventsSNSTopic
+      Topics: 
+        - !Ref MatchmakingEventsSNSTopic
 
   GameServiceAPI:
       Type: AWS::Serverless::Api
@@ -50,7 +94,7 @@ Resources:
 
   DynamoDBAccessPolicy:
     Properties:
-      Description: Policy for full gamelift access
+      Description: Policy for dynamodb access
       Path: /
       PolicyDocument:
         Version: '2012-10-17'
@@ -69,6 +113,19 @@ Resources:
                 - ':'
                 - Ref: 'AWS::AccountId'
                 - ':table/GameLiftExamplePlayerData'
+        - Effect: Allow
+          Action:
+            - 'dynamodb:GetItem'
+            - 'dynamodb:PutItem'
+            - 'dynamodb:UpdateItem'
+          Resource:
+            'Fn::Join':
+              - ''
+              - - 'arn:aws:dynamodb:'
+                - Ref: 'AWS::Region'
+                - ':'
+                - Ref: 'AWS::AccountId'
+                - ':table/GameLiftExampleMatchmakingTickets'
     Type: AWS::IAM::ManagedPolicy
 
   RequestMatchmakingFunction:
@@ -103,6 +160,22 @@ Resources:
             RestApiId: !Ref GameServiceAPI
             Path: /requestmatchstatus
             Method: get
+  # Processes the messages sent by GameLift FlexMatch to the topic provided
+  ProcessMatchmakingEvents:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: gameservice/
+      Handler: processmatchmakingevents.handler
+      Runtime: nodejs10.x
+      Policies:
+        - !Ref DynamoDBAccessPolicy
+      Events:
+        SNSEvent:
+          Type: SNS
+          Properties:
+            Topic:
+              !Ref MatchmakingEventsSNSTopic
+
   # Not used by the example but this method can be used to request game sessions directly
   RequestGameSessionFunction:
     Type: AWS::Serverless::Function 
@@ -128,3 +201,8 @@ Outputs:
   GameServiceAPI:
     Description: "API Gateway endpoint URL for Prod stage for Game Service API"
     Value: !Sub "https://${GameServiceAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  MatchmakingSNSTopic:
+    Description: "Matchmaking SNS Topic Arn"
+    Value: !Ref MatchmakingEventsSNSTopic
+    Export:
+          Name: !Sub "${AWS::StackName}-MatchmakingEventsSNSTopic"

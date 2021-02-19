@@ -13,6 +13,10 @@ Parameters:
     Type: String
     Default: GameLiftExamplePreRequirements
     Description: The name of the stack that defines the role for the gamelift instances
+  BackendStackName:
+    Type: String
+    Default: gameservice-backend
+    Description: The name of the stack for the backend
 
 Resources:
   # Matchmaking Ruleset
@@ -90,6 +94,9 @@ Resources:
       GameSessionQueueArns:
         - !GetAtt Queue.Arn
       RuleSetName: !Ref MatchmakingRuleSet
+      NotificationTarget:
+        Fn::ImportValue:
+          !Sub "${BackendStackName}-MatchmakingEventsSNSTopic"
 
   # The Fleet
   Fleet: 

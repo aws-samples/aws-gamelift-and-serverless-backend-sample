@@ -6,37 +6,42 @@ const AWS = require('aws-sdk');
 const GameLift = new AWS.GameLift({region: process.env.AWS_REGION});
 
 exports.requestMatchStatus = async (event) => {
+  
     let response;
 
     //Get the ticket from request querystring
     var ticketId = event.queryStringParameters.ticketId;
 
-    //Params for the matchmaking status check
-    var params = {
-      TicketIds: [ 
-        ticketId,
-      ]
-    };
-
     console.log("Ticket id: " + ticketId);
 
-    // Request matchmaking status
-    await GameLift.describeMatchmaking(params).promise().then(data => {
+    var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
-      console.log(data);
-      var matchTicket = data.TicketList[0];
-      console.log("Match status: " + matchTicket.Status);
-      if(matchTicket.Status == "COMPLETED")
+    // Try to get the ticket data from DynamoDB
+    var params = {
+      TableName: 'GameLiftExampleMatchmakingTickets',
+      Key: {
+        'TicketID': {S: ticketId }
+      }
+    };
+    await ddb.getItem(params).promise().then(data => {
+      if(data.Item != null)
       {
-          var responsedata = {
-            IpAddress : matchTicket.GameSessionConnectionInfo.IpAddress,
-            Port : matchTicket.GameSessionConnectionInfo.Port,
-            PlayerSessionId : matchTicket.GameSessionConnectionInfo.MatchedPlayerSessions[0].PlayerSessionId,
-            DnsName: matchTicket.GameSessionConnectionInfo.DnsName
-          }
+        console.log("Found Ticket")
+        ip = data.Item["ip"].S
+        port = parseInt(data.Item["port"].S)
+        playerSessionId = data.Item["playerSessionId"].S
+        dnsName = data.Item["dnsName"].S
+
+        var responsedata = {
+          IpAddress :ip,
+          Port : port,
+          PlayerSessionId : playerSessionId,
+          DnsName: dnsName
+        }
       }
       else
       {
+        console.log("Matchmaking not succeeded yet");
         var responsedata = {
           IpAddress : "",
           Port : 0,
@@ -55,7 +60,7 @@ exports.requestMatchStatus = async (event) => {
       };
 
     }).catch(err => {
-        console.log(err);
+      console.log("Couldn't access ticket data in DynamoDB: " + err);
     });
 
     //Return response if we got one

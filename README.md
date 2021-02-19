@@ -15,7 +15,7 @@
 
 This repository contains a simple 3D game GameLift example with a backend service designed especially for getting started with MacOS, Windows and mobile development and leveraging deployment automation.
 
-**Note**: This repository exists for **example purposes only** and you always need to build and validate your own solution for production use. There is a known limitation as we are calling describe-matchmaking on a recurring interval to request match status which can hit the API limits with a larger player base. To mitigate this, you would use [FlexMatch events](https://docs.aws.amazon.com/gamelift/latest/flexmatchguide/match-events.html) and cache the result in DynamoDB for example.
+**Note**: This repository exists for **example purposes only** and you always need to build and validate your own solution for production use.
 
 # Key Features
 * Uses CloudFormation to automate the deployment of all resources
@@ -34,7 +34,7 @@ The project is a simple "game" where 2-10 players join the same session and move
 
 The project contains:
 * **A Unity Project** that will be used for both Client and Server builds (`GameLiftExampleUnityProject`)
-* **A Backend Project** created with Serverless Application Model (SAM) to create and API backend for matchmaking requests (`GameServiceAPI`)
+* **A Backend Project** created with Serverless Application Model (SAM) to create an API backend for matchmaking requests (`GameServiceAPI`)
 * **Fleet deployment automation** leveraging AWS CloudFormation to deploy all GameLift resources (`FleetDeployment`)
 * **A build folder for the server build** which includes a set of pre-required files for configuration and where you will build your Linux server build from Unity (`LinuxServerBuild`)
 
@@ -179,7 +179,9 @@ GameLift resources are deployed with CloudFormation templates. Two CloudFormatio
 
 The backend service is Serverless and built with Serverless Application Model. The AWS resources are defined in the SAM template `template.yaml` within the GameServiceAPI folder. SAM CLI uses this template to generate the `gameservice.yaml` template that is then deployed with CloudFormation. SAM greatly simplifies defining Serverless backends.
 
-The backend contains two key Lambda functions: **RequestMatchmakingFunction** and **RequestMatchStatusFunction** defined as Node.js scripts within the gameservice folder. These functions are called by the API Gateway defined in the template that uses AWS_IAM authentication. Only signed requests are allowed and the clients use their Cognito credentials to sign the requests. This way we also have their **Cognito identity** available within Lambda which is used to securely identify users and access their data in DynamoDB.
+The backend contains three key Lambda functions: **RequestMatchmakingFunction** and **RequestMatchStatusFunction** are defined as Node.js scripts within the gameservice folder. These functions are called by the API Gateway defined in the template that uses AWS_IAM authentication. Only signed requests are allowed and the clients use their Cognito credentials to sign the requests. This way we also have their **Cognito identity** available within Lambda which is used to securely identify users and access their data in DynamoDB.
+
+**ProcessMatchmakingEventsFunction** is triggered by Amazon SNS events published by GameLift FlexMatch. It will catch the MatchmakingSucceeded events and write the results in DynamoDB Table "GameLiftExampleMatchmakingTickets". RequestMatchStatusFunction will use the DynamoDB table to check if a ticket has succeeded matchmaking. This way we don't need to use the DescribeMatchmaking API of GameLift which can easily throttle with a large player count. The DynamoDB Table also has a TTL field and and configuration which means the tickets will be automatically removed after one hour of creation.
 
 The SAM template defines IAM Policies to allow the Lambda functions to access both GameLift to request matchmaking as well as DynamoDB to access the player data. It is best practice to never allow game clients to access these resources directly as this can open different attack vectors to your resources.
 

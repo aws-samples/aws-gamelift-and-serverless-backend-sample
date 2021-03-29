@@ -2,7 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Unity Game Server Example Prerequirements
+Description: Unity Game Server Example Prerequirements (Cognito resources and Instance Role)
+
+Parameters:
+  # The Stack name for Backend Resources to get the API Gateway ARN
+  BackendServicesStackName:
+    Description: CloudFormation stack containing the Backend Services
+    Type: String
+    Default: gameservice-backend
 
 Resources:
 
@@ -68,7 +75,9 @@ Resources:
                 Action:
                   - "cognito-sync:*"
                   - "execute-api:Invoke"
-                Resource: "arn:aws:execute-api:*:*:*" #NOTE: This could be more strict and only allow access to the specific backend API
+                Resource:
+                  Fn::ImportValue:
+                      !Sub "${BackendServicesStackName}:GameServiceApiArn"
 
   # Create a role for authorized acces to AWS resources. Control what your user can access. This example only allows Lambda invokation
   # Only allows users in the previously created Identity Pool
@@ -97,7 +106,9 @@ Resources:
                 Action:
                   - "cognito-sync:*"
                   - "execute-api:Invoke"
-                Resource: "arn:aws:execute-api:*:*:*" #NOTE: This could be more strict and only allow access to the specific backend API
+                Resource:
+                  Fn::ImportValue:
+                      !Sub "${BackendServicesStackName}:GameServiceApiArn"
   
   # Assigns the roles to the Identity Pool
   IdentityPoolRoleMapping:

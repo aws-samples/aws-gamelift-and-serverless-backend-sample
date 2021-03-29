@@ -12,12 +12,6 @@ Globals:
   Function:
     Timeout: 100
 
-Parameters: 
-  BackendStackName:
-    Type: String
-    Default: gameservice-backend
-    Description: The name of the stack for the backend
-
 Resources:
 
   # Table for player data
@@ -206,3 +200,8 @@ Outputs:
     Value: !Ref MatchmakingEventsSNSTopic
     Export:
           Name: !Sub "${AWS::StackName}-MatchmakingEventsSNSTopic"
+  GameServiceApiArn:
+      Description: "The Execute ARN for the Cognito Role Permissions"
+      Value: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${GameServiceAPI}/*/*/*"
+      Export:
+        Name: !Sub ${AWS::StackName}:GameServiceApiArn

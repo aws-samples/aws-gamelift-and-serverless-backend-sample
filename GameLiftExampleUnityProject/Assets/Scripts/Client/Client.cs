@@ -4,7 +4,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using Amazon;
 using Amazon.CognitoIdentity;
 
 // *** MAIN CLIENT CLASS FOR MANAGING CLIENT CONNECTIONS AND MESSAGES ***
@@ -63,25 +62,14 @@ public class Client : MonoBehaviour
     {
         FindObjectOfType<UIManager>().SetTextBox("Setting up Client..");
 
-        // Set up Mobile SDK
-        UnityInitializer.AttachToGameObject(this.gameObject);
-        AWSConfigs.AWSRegion = MatchmakingClient.regionString;
-        AWSConfigs.HttpClient = AWSConfigs.HttpClientOption.UnityWebRequest;
-
-        // Get Cognito Identity and start Connecting to server once we have the identity
+        // Get an identity and connect to server
         CognitoAWSCredentials credentials = new CognitoAWSCredentials(
             MatchmakingClient.identityPoolID,
-            MatchmakingClient.region
-        );
-        credentials.GetCredentialsAsync(
-            (response) => {
-                Debug.Log("Received CognitoCredentials: " + response.Response);
-                cognitoCredentials = response.Response;
+            MatchmakingClient.region);
+        Client.cognitoCredentials = credentials.GetCredentials();
+        Debug.Log("Got credentials: " + Client.cognitoCredentials.AccessKey + "," + Client.cognitoCredentials.SecretKey);
 
-                // Start a coroutine for the connection process to keep UI updated while it's happening
-                StartCoroutine(ConnectToServer());
-            }
-        );
+        StartCoroutine(ConnectToServer());
     }
 
     // Update is called once per frame

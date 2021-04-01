@@ -12,7 +12,8 @@
 <assembly fullname="System">
     <namespace fullname="System.Security.Cryptography" preserve="all"/>
 </assembly>
-<assembly fullname="AWSSDK.Core" preserve="all"/>
-<assembly fullname="AWSSDK.CognitoIdentity" preserve="all"/>
-<assembly fullname="AWSSDK.SecurityToken" preserve="all"/>
+   <assembly fullname="AWSSDK.Core" preserve="all"/>
+   <assembly fullname="AWSSDK.AWSSDK.CognitoIdentity" preserve="all"/>
+   <assembly fullname="AWSSDK.CognitoIdentityProvider" preserve="all"/>
+   <assembly fullname="AWSSDK.SecurityToken" preserve="all"/>
 </linker>

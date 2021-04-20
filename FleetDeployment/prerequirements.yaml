@@ -49,8 +49,9 @@ Resources:
       IdentityPoolName: GameLiftExampleIdentityPool
       AllowUnauthenticatedIdentities: true
 
-  # Create a role for unauthorized acces to AWS resources. Very limited access. Only allows users in the previously created Identity Pool
-  CognitoUnAuthorizedRole:
+  # Create a role for unauthenticated acces to AWS resources. For this example the access is the same (API access) as with authenticated.
+  # Only allows users in the previously created Identity Pool
+  CognitoUnAuthenticatedRole:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument: 
@@ -67,7 +68,7 @@ Resources:
               "ForAnyValue:StringLike":
                 "cognito-identity.amazonaws.com:amr": unauthenticated
       Policies:
-        - PolicyName: "CognitoUnauthorizedPolicy"
+        - PolicyName: "CognitoUnauthenticatedPolicy"
           PolicyDocument: 
             Version: "2012-10-17"
             Statement: 
@@ -79,9 +80,10 @@ Resources:
                   Fn::ImportValue:
                       !Sub "${BackendServicesStackName}:GameServiceApiArn"
 
-  # Create a role for authorized acces to AWS resources. Control what your user can access. This example only allows Lambda invokation
+  # Create a role for authenticated acces to AWS resources. The same access as unauthenticated in the example.
+  # This role could be used for integration with Facebook, Google or Amazon for example.
   # Only allows users in the previously created Identity Pool
-  CognitoAuthorizedRole:
+  CognitoAuthenticatedRole:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument: 
@@ -98,7 +100,7 @@ Resources:
               "ForAnyValue:StringLike":
                 "cognito-identity.amazonaws.com:amr": authenticated
       Policies:
-        - PolicyName: "CognitoAuthorizedPolicy"
+        - PolicyName: "CognitoAuthenticatedPolicy"
           PolicyDocument: 
             Version: "2012-10-17"
             Statement: 
@@ -116,8 +118,8 @@ Resources:
     Properties:
       IdentityPoolId: !Ref IdentityPool
       Roles:
-        authenticated: !GetAtt CognitoAuthorizedRole.Arn
-        unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
+        authenticated: !GetAtt CognitoAuthenticatedRole.Arn
+        unauthenticated: !GetAtt CognitoUnAuthenticatedRole.Arn
 
 Outputs:
   InstanceRole:

@@ -170,24 +170,6 @@ Resources:
             Topic:
               !Ref MatchmakingEventsSNSTopic
 
-  # Not used by the example but this method can be used to request game sessions directly
-  RequestGameSessionFunction:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: gameservice/
-      Handler: requestgamesession.requestGameSession
-      Runtime: nodejs10.x
-      Policies:
-        - !Ref GameLiftAccessPolicy
-        - !Ref DynamoDBAccessPolicy
-      Events:
-        HelloWorld:
-          Type: Api 
-          Properties:
-            RestApiId: !Ref GameServiceAPI
-            Path: /requestgamesession
-            Method: get
-
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM

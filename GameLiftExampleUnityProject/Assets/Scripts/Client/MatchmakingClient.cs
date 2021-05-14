@@ -37,25 +37,6 @@ public class MatchmakingClient
         return responseStr;
     }
 
-    // Not used in the example but can be used to request game session directly from the fleet without matchmaking
-    public GameSessionInfo RequestGameSession()
-    {
-        try
-        {
-            //Make the signed request and wait for max 10 seconds to complete
-            var response = Task.Run(() => this.SendSignedGetRequest(apiEndpoint + "requestgamesession"));
-            response.Wait(10000);
-            string jsonResponse = response.Result;
-            GameSessionInfo info = JsonUtility.FromJson<GameSessionInfo>(jsonResponse);
-            return info;
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e.Message);
-            return null;
-        }
-    }
-
     // Sends a new matchmaking request ticket to the backend API
     public MatchMakingRequestInfo RequestMatchMaking()
     {

@@ -131,9 +131,14 @@ public class GameLift : MonoBehaviour
     public void TerminateGameSession()
     {
         System.Console.WriteLine("Terminating Game Session");
+
+        //Cleanup (not currently relevant as we just terminate the process)
         GameObject.FindObjectOfType<Server>().DisconnectAll();
-        GameLiftServerAPI.TerminateGameSession();
         this.gameStarted = false;
+
+        // Terminate the process following GameLift best practices. A new one will be started automatically
+        GameLiftServerAPI.ProcessEnding();
+        Application.Quit();
     }
 
     public void StartGame()

@@ -42,11 +42,13 @@ The project contains:
 
 The architecture is explained through two diagrams. The first one focuses on the GameLift resources and the second one on the serverless backend. Both diagrams contain all components of the solution, just the level of detail is different based on the focus.
 
-## GameLift Resources
-![Architecture Diagram GameLift Resources](Architecture_gamelift.png "Architecture Diagram GameLift Resources")
-![Architecture Diagram Backend](Architecture_small.png "Architecture Diagram Backend")
+### GameLift Resources
 
-## Serverless Backend
+![Architecture Diagram GameLift Resources](Architecture_gamelift.png "Architecture Diagram GameLift Resources")
+
+### Serverless Backend
+
+![Architecture Diagram Backend](Architecture_small.png "Architecture Diagram Backend")
 
 # Preliminary Setup
 

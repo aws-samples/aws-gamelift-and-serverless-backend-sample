@@ -1,6 +1,9 @@
 #!/bin/bash
 
+# Home Region of the GameLift resources and the Fleet
 region="us-east-1"
+# Region for the Fleet's second Location
+secondaryregion="eu-west-1"
 
 # Returns the status of a stack
 getstatusofstack() {
@@ -25,7 +28,7 @@ if [ -z "$stackstatus" ]; then
   echo "Creating stack for example fleet (this will take some time)..."
   aws cloudformation --region $region create-stack --stack-name GameliftExampleResources \
       --template-body file://gamelift.yaml \
-      --parameters ParameterKey=BuildId,ParameterValue=$buildid \
+      --parameters ParameterKey=BuildId,ParameterValue=$buildid ParameterKey=SecondaryLocation,ParameterValue=$secondaryregion \
       --capabilities CAPABILITY_IAM
   aws cloudformation --region $region wait stack-create-complete --stack-name GameliftExampleResources
   echo "Done creating stack!"
@@ -33,7 +36,7 @@ else
   echo "Updating stack for example fleet (this will take some time)..."
   aws cloudformation --region $region update-stack --stack-name GameliftExampleResources \
      --template-body file://gamelift.yaml \
-     --parameters ParameterKey=BuildId,ParameterValue=$buildid \
+     --parameters ParameterKey=BuildId,ParameterValue=$buildid ParameterKey=SecondaryLocation,ParameterValue=$secondaryregion \
      --capabilities CAPABILITY_IAM
   aws cloudformation --region $region wait stack-update-complete --stack-name GameliftExampleResources
   echo "Done updating stack!"

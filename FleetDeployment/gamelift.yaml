@@ -17,13 +17,16 @@ Parameters:
     Type: String
     Default: gameservice-backend
     Description: The name of the stack for the backend
+  SecondaryLocation:
+    Type: String
+    Description: The region identifier for the secondary location for the Fleet
 
 Resources:
   # Matchmaking Ruleset
   MatchmakingRuleSet:
     Type: "AWS::GameLift::MatchmakingRuleSet"
     Properties:
-      Name: "MyRuleSet"
+      Name: "GameLiftExampleRuleSet"
       RuleSetBody: !Sub |
         {
             "name": "simplerule",
@@ -47,12 +50,22 @@ Resources:
                 // get skill values for all players and average to produce an overall average
                 "referenceValue": "avg(teams[oneteam].players.attributes[skill])",
                 "maxDistance": 10
+            },{
+              "name": "FastConnection",
+              "description": "Prefer matches with fast player connections first",
+              "type": "latency",
+              "maxLatency": 50
             }],
             "expansions": [{
                 "target": "teams[oneteam].minPlayers",
                 "steps": [{
-                    "waitTimeSeconds": 10,
+                    "waitTimeSeconds": 5,
                     "value": 2
+                }]},{
+                "target": "rules[FastConnection].maxLatency",
+                "steps": [{
+                    "waitTimeSeconds": 10,
+                    "value": 200
                 }]
             }]
         }
@@ -72,10 +85,12 @@ Resources:
                 - !Ref "AWS::Region"
                 - '::alias/'
                 - !Ref Alias
-      # Optional player latency policies
-      #PlayerLatencyPolicies:
-      #  - MaximumIndividualPlayerLatencyMilliseconds: 1000
-      #    PolicyDurationSeconds: 60
+      # We try for less than 50ms latency for 5 seconds and then accept anything
+      # FlexMatch already tries to group players with less than 50ms latency to a Region as well
+      PlayerLatencyPolicies:
+        - MaximumIndividualPlayerLatencyMilliseconds: 60
+          PolicyDurationSeconds: 5
+        - MaximumIndividualPlayerLatencyMilliseconds: 1000
 
   # Configuration that uses the rule set
   MatchMakingConfiguration:
@@ -87,7 +102,7 @@ Resources:
       RequestTimeoutSeconds: 25
       BackfillMode: "MANUAL"
       Description: "A basic matchmaking configuration"
-      # Just some example properties
+      # Just some example properties, not used in our game
       GameProperties:
         - Key: "gamemode"
           Value: "classic"
@@ -104,6 +119,10 @@ Resources:
     Properties: 
       Name: "UnityExampleLinuxFleet"
       Description: "A Unity Example Linux Fleet"
+      # We run a secondary location for this Fleet and do latency-based matchmaking between them
+      Locations:
+        - Location: !Ref SecondaryLocation 
+        - Location: !Ref "AWS::Region"
       BuildId: 
         Ref: "BuildId"
       # Run 2 game servers in different ports with different log files
@@ -140,6 +159,8 @@ Resources:
           Protocol: "TCP"
 
   # Alias that references the fleet
+  # This is not required as we're registering to a Queue but just here for example
+  # If you target Fleets directly, then Aliases are useful for replacing Fleets.
   Alias: 
     Type: AWS::GameLift::Alias
     Properties: 

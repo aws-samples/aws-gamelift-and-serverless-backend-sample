@@ -1,4 +1,7 @@
-$region="us-east-1"
+# Home Region of the GameLift resources and the Fleet
+region="us-east-1"
+# Region for the Fleet's second Location
+secondaryregion="eu-west-1"
 
 # Returns the status of a stack
 Function Get-Status-Of-Stack {
@@ -21,7 +24,7 @@ if ($null -eq $stackstatus) {
   Write-Host "Creating stack for example fleet (this will take some time)..."
   aws cloudformation --region $region create-stack --stack-name GameliftExampleResources `
       --template-body file://gamelift.yaml `
-      --parameters ParameterKey=BuildId,ParameterValue=$buildid `
+      --parameters ParameterKey=BuildId,ParameterValue=$buildid ParameterKey=SecondaryLocation,ParameterValue=$secondaryregion `
       --capabilities CAPABILITY_IAM
   aws cloudformation --region $region wait stack-create-complete --stack-name GameliftExampleResources
   Write-Host "Done creating stack!"
@@ -29,7 +32,7 @@ if ($null -eq $stackstatus) {
   Write-Host "Updating stack for example fleet (this will take some time)..."
   aws cloudformation --region $region update-stack --stack-name GameliftExampleResources `
      --template-body file://gamelift.yaml `
-     --parameters ParameterKey=BuildId,ParameterValue=$buildid `
+     --parameters ParameterKey=BuildId,ParameterValue=$buildid ParameterKey=SecondaryLocation,ParameterValue=$secondaryregion `
      --capabilities CAPABILITY_IAM
   aws cloudformation --region $region wait stack-update-complete --stack-name GameliftExampleResources
   Write-Host "Done updating stack!"

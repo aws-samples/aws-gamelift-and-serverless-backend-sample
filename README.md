@@ -13,22 +13,22 @@
     + [Game Client](#game-client)
   * [License](#license)
 
-This repository contains a simple 3D game GameLift example with a backend service designed especially for getting started with MacOS, Windows and mobile development and leveraging deployment automation.
+This repository contains a simple GameLift example with a backend service designed for getting started with MacOS, Windows and mobile session-based multiplayer game development and leveraging deployment automation.
 
 **Note**: This repository exists for **example purposes only** and you always need to build and validate your own solution for production use.
 
 # Key Features
 * Uses CloudFormation to automate the deployment of all resources
 * Uses a Serverless API to initiate matchmaking built with Serverless Application Model
-* Leverages FlexMatch matchmaking
-* Runs on Amazon Linux 2 on the GameLift service
+* Leverages FlexMatch latency-based matchmaking
+* Runs on Amazon Linux 2 on the GameLift service in two Regional locations
 * Uses Cognito Identity Pools to store user identities and authenticate them against the backend
 * Deployed with shell (MacOS) or PowerShell (Windows) scripts
 * Includes configuration to push custom logs and metrics to CloudWatch with CloudWatch Agent
-* Client works on mobile platforms
+* Client works on multiple platforms including mobile
 * Uses Unity engine for server and client
 
-The project is a simple "game" where 2-10 players join the same session and move around with their 3D characters. The movements are sent through the server to other players and the characters created and removed as players join and leave.
+The project is a simple "game" where 2-10 players join the same session and move around with their 3D characters. The movement inputs are sent to the server which runs the game simulation on a headless Unity process and syncs state back to all players.
 
 # Contents
 
@@ -38,9 +38,15 @@ The project contains:
 * **Fleet deployment automation** leveraging AWS CloudFormation to deploy all GameLift resources (`FleetDeployment`)
 * **A build folder for the server build** which includes a set of pre-required files for configuration and where you will build your Linux server build from Unity (`LinuxServerBuild`)
 
-# Architecture Diagram
+# Architecture Diagrams
 
-![Architecture Diagram](Architecture_small.png "Architecture Diagram")
+The architecture is explained through two diagrams. The first one focuses on the GameLift resources and the second one on the serverless backend. Both diagrams contain all components of the solution, just the level of detail is different based on the focus.
+
+## GameLift Resources
+![Architecture Diagram GameLift Resources](Architecture_gamelift.png "Architecture Diagram GameLift Resources")
+![Architecture Diagram Backend](Architecture_small.png "Architecture Diagram Backend")
+
+## Serverless Backend
 
 # Preliminary Setup
 
@@ -93,6 +99,7 @@ The project contains:
 6. **Deploy the build and the GameLift resources** (`FleetDeployment/deployBuildAndUpdateGameLiftResources.sh`)
     * Open file FleetDeployment/deployBuildAndUpdateGameLiftResources.sh in your favourite text editor
     * Set the region variable in the script to your selected region
+    * Set the secondaryregion variable in the script to your selected secondary location as we're running the Fleet in two different Regions (this will be used by the latency-based matchmaking)
     * Run the script (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)
     * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
     * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
@@ -102,7 +109,7 @@ The project contains:
     * Open Build Settings (File -> Build Settings) in Unity and set target platform to `Mac OSX` (or whatever the platform you are using) and *uncheck* the box `Server Build`
     * Build the client to any folder (Click "Build", select your folder and click "Save")
     * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities. If you run multiple copies of the build, they will have the same identity (and hence same player ID) and will NOT be matched.
-    * You will see a 10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 10 seconds
+    * You will see a 5-10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 5 seconds. It also expects a smaller than 50ms latency for the clients to one of the supported Regions and relaxes this rule to 200ms after 10 seconds. 
     * **The clients need to connect within 20 seconds** as this is the timeout value for the matchmaking
 
 # Deployment with PowerShell Scripts
@@ -138,6 +145,7 @@ The project contains:
 6. **Deploy the build and the GameLift resources** (`FleetDeployment/deployBuildAndUpdateGameLiftResources.ps1`)
     * Open file FleetDeployment/deployBuildAndUpdateGameLiftResources.ps1 in your favourite text editor
     * Set the region variable in the script to your selected region
+    * Set the secondaryregion variable in the script to your selected secondary location as we're running the Fleet in two different Regions (this will be used by the latency-based matchmaking)
     * Run the script `deployBuildAndUpdateGameLiftResources.ps1`
     * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
     * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
@@ -147,7 +155,7 @@ The project contains:
     * Open Build Settings (File -> Build Settings) in Unity and set target platform to `Windows` (or whatever the platform you are using) and *uncheck* the box `Server Build`
     * Build the client to any folder (Click "Build", select your folder and click "Save")
     * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities. If you run multiple copies of the build, they will have the same identity (and hence same player ID) and will NOT be matched.
-    * You will see a 10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 10 seconds
+    * You will see a 5-10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 5 seconds. It also expects a smaller than 50ms latency for the clients to one of the supported Regions and relaxes this rule to 200ms after 10 seconds.
     * **The clients need to connect within 20 seconds** as this is the timeout value for the matchmaking
 
 # Implementation Overview
@@ -163,10 +171,10 @@ GameLift resources are deployed with CloudFormation templates. Two CloudFormatio
 
 ### GameLiftExampleResources Stack
 
-  * a **FlexMatch Matchmaking Rule Set** that defines a single team with 4 to 10 players and a requirement for the player skill levels to be within a distance of 10. All players will have the same skill level in the example that is stored in DynamoDB by the backend service. There is also an expansion to relax the rules to minimum of 2 players after 10 seconds. When you connect with 2 clients, you will see this 10 second delay before the expansion is activated.
+  * a **FlexMatch Matchmaking Rule Set** that defines a single team with 4 to 10 players and a requirement for the player skill levels to be within a distance of 10. All players will have the same skill level in the example that is stored in DynamoDB by the backend service. There is also an expansion to relax the rules to minimum of 2 players after 5 seconds. When you connect with 2 clients, you will see this 5 second delay before the expansion is activated. The FlexMatch Rule Set also defines a latency requirement of < 50ms for the clients. This is relaxed to 200ms after 10 seconds. The clients make HTTPS requests to Amazon endpoints to measure their latency and send this data to the backend which forwards it to the matchmaker.
   * a **FlexMatch Matchmaking Configuration** that uses the Rule Set and routes game session placement requests to the Queue.
-  * a **GameLift Queue** that is used to place game sessions on the GameLift Fleet. In the example we have a single fleet but you could have multiple Fleets within the Region (for example a Spot Fleet and a failover On-Demand Fleet for cost optimization) as well as Fleets in different Regions to support players globally.
-  * a **GameLift Fleet** that sits behind the Queue and uses the latest game server build uploaded by the `deployBuildAndUpdateGameLiftResources.sh` script. The fleet runs on Amazon Linux 2 and there are two game server processes running on each instance. The ports for the processes are defined as parameters to the game server process and matching ports are enabled for inbound traffic to the fleet. You can pack more game servers on each instance based on the instance size and the resource requirements of your server. Our example uses C5.Large instance type which is a good starting point for compute intensive workloads.
+  * a **GameLift Queue** that is used to place game sessions on the GameLift Fleet. In the example we have a single fleet behind the Queue and it has two Regional locations (home Region and one secondary Region Location). You could have multiple Fleets within the Home Region (for example a Spot Fleet and a failover On-Demand Fleet for cost optimization). The queue has latency configuration for selecting the best Region for each group of players generated by FlexMatch based on their latency.
+  * a **GameLift Fleet** that sits behind the Queue and uses the latest game server build uploaded by the `deployBuildAndUpdateGameLiftResources.sh` script. The Fleet has two Regional locations and runs on Amazon Linux 2 and there are two game server processes running on each instance. The ports for the processes are defined as parameters to the game server process and matching ports are enabled for inbound traffic to the fleet. You can pack more game servers on each instance based on the instance size and the resource requirements of your server. Our example uses C5.Large instance type which is a good starting point for compute intensive workloads.
 
 ## Serverless Backend Service
 
@@ -184,27 +192,32 @@ Both the client and server are using Unity. The server is built with `SERVER` sc
 
 **Key code files:**
   * `Scripts/Server/GameLift.cs`: Here we will initialize GameLift with the GameLift Server SDK. The port to be used is extracted from the command line arguments and the port is also used as part of the log file to have different log files for different server processes. Game session activations, health checks and other configuration follow closely the examples provided in the [GameLift Developer Guide](https://docs.aws.amazon.com/gamelift/latest/developerguide/gamelift-sdk-server-api.html). Game sessions are defined as "started" once 2 players at least have joined (done in the `Server.cs` script) and terminated when players have left or in case players don't join within 5 seconds after new game session info is received.
-  * `Scripts/Server/Server.cs`: Here we will start a TCP Server listening to the port defined in the command line arguments to receive TCP connections from clients. We will handle any messages from clients and direct them to other clients in the game where appropriate. Messages use a binary format with **BinaryFormatter** that serializes and deserializes the **SimpleMessage** class directly to the network stream. It is recommended to use a binary format instead of a text format to minimize the size or your packets. BinaryFormatter is not the most optimal in size and you might want to consider options such as Protocol Buffers to reduce the packet size. BinaryFormatter is used to keep the example simple and clean. Sending and receiving messages is done with the `Scripts/NetworkingShared/NetworkProtocol.cs` class that is used by both the client and the server.
+  * `Scripts/Server/Server.cs`: Here we will start a TCP Server listening to the port defined in the command line arguments to receive TCP connections from clients. We will handle any messages from clients, run the simulation at 30 frames / second and send the state back to the clients on each frame. Messages use a binary format with **BinaryFormatter** that serializes and deserializes the **SimpleMessage** class directly to the network stream. It is recommended to use a binary format instead of a text format to minimize the size or your packets. BinaryFormatter is not the most optimal in size and you might want to consider options such as Protocol Buffers to reduce the packet size. BinaryFormatter is used to keep the example simple and clean. Sending and receiving messages is done with the `Scripts/NetworkingShared/NetworkProtocol.cs` class that is used by both the client and the server.
   * `Scripts/Server/SimpleStatsdClient.cs` is used to send custom game session specific metrics to CloudWatch through the CloudWatch Agent running on the instances. These metrics are tagged with the game session which will be presented as a Dimension in CloudWatch. As StatsD is used with UDP traffic within localhost, collecting metrics is fast and has low CPU footprint in the game server process.
 
 **CloudWatch Agent**
 
-CloudWatch agent is initialized in the `install.sh` script when a Fleet is created. This will start the agent on each individual instance with the configuration provided in `LinuxServerBuild/amazon-cloudwatch-agent.json`. We will send game session log files from both the server processes with the fixed file names based on the ports. We will also start a StatsD client to send custom metrics to CloudWatch Metrics.
+CloudWatch agent is initialized in the `install.sh` script when a Fleet is created. This will start the agent on each individual instance with the configuration provided in `LinuxServerBuild/amazon-cloudwatch-agent.json`. We will send game session log files from both the server processes with the fixed file names based on the ports. We will also start a StatsD client to send custom metrics to CloudWatch Metrics. It's worth noting that the different Locations of the Fleets will send these metrics and logs to CloudWatch in their own Region.
 
-A key thing to notice is that we need to define the Instance Role to be used by the agent. The IAM Role provided by the instance metatadata will not send metrics and logs correctly as it is a role in the GameLift service accounts.
+A key thing to notice is that we need to define the **Instance Role** to be used by the agent. The IAM Role provided by the instance metatadata will not send metrics and logs correctly as it is a role in the GameLift service accounts.
 
 ## Game Client
 
-The game client is using Unity and is tested on MacOS and iOS platforms but should work on any platform. The input for the player character is arrow keys or WASD so there is no input option on iOS currently. The client is built with `CLIENT` scripting define symbol which is used in the C# scripts to enable and disable different parts of the code.
+The game client is using Unity and is tested on MacOS, Windows and iOS platforms but should work on any platform. The input for the player character is arrow keys or WASD so there is no input option on mobile currently. The client is built with `CLIENT` scripting define symbol which is used in the C# scripts to enable and disable different parts of the code. The client will only send input to the server and the characters will move based on the state information received from the server.
+
+**Latency measurements**
+
+The client measures latency (in Client.cs) by sending HTTPS requests to AWS regional endpoints (DynamoDB in this example) of the Regions we have defined. It sends three requests over the same connection and measures the average of the latter two. This way we can measure the TCP latency without the handshakes and get more stable results from an average of two. This data is passed to the backend which will include it in matchmaking tickets and sessions will be placed to appropriate Regions based on the latency.
 
 **Connection Process**
 
-Client uses AWS Mobile SDK for Unity to request a Cognito Identity and connects to the Serverless backend with HTTPS and signs the requests to API Gateway with the credentials provided by Cognito. After the matchmaking is done, the client will use the connection info provided by the serverless backend (which it receives from GameLift FlexMatch) to connect directly to the server with a TCP connection. The client sends the PlayerSessionID it receives from the Serverless backend to the server and the server validates this ID with the GameLift service.
+Client uses AWS .NET SDK to request a Cognito Identity and connects to the Serverless backend with HTTPS and signs the requests to API Gateway with the credentials provided by Cognito. After the matchmaking is done, the client will use the connection info provided by the serverless backend (which it receives from GameLift FlexMatch) to connect directly to the server with a TCP connection. The client sends the PlayerSessionID it receives from the Serverless backend to the server and the server validates this ID with the GameLift service.
 
 **Key code files:**
-  * `Scripts/Client/Client.cs`: This is the main class of the client that initiates the matchmaking and connects to the server. It also processes all messages received from the server and updates the associated enemy player entities based on them. Enemy players will be spawned and removed as they join and leave and their movement will be interpolated based on the position messages received. We will also send position updates for our local player to the server here.
+  * `Scripts/Client/Client.cs`: This is the main class of the client that initiates the matchmaking and connects to the server. It also processes all messages received from the server and updates the associated player entities based on them. Enemy players will be spawned and removed as they join and leave and their movement will be interpolated based on the position messages received. We will also send move commands from our local player to the server here.
   * `Scripts/Client/MatchMakingClient.cs`: This is the HTTPS client to the backend service that makes the signed requests to request matchmaking and request the status of a matchmaking ticket.
   * `Scripts/Client/NetworkClient.cs`: This is the TCP Client class that manages the TCP connection to the server and sending/receiving of messages. It uses NetworkProtocol in `NetworkProtocol.cs` to serialize and deserialize messages in a binary format in the same way as the server. 
+
 
 # License
 

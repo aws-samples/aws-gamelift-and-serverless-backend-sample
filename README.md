@@ -88,7 +88,7 @@ The architecture is explained through two diagrams. The first one focuses on the
     * Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended)
     * Set the value of `static string apiEndpoint` to the endpoint created by the backend deployment in `GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2
-    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region
+    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
     * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
 5. **Build the server build**
     * In Unity go to "File -> Build Settings"
@@ -134,7 +134,7 @@ The architecture is explained through two diagrams. The first one focuses on the
     * Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended)
     * Set the value of `static string apiEndpoint` to the endpoint created by the backend deployment in `GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2
-    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region
+    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
     * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
 5. **Build the server build**
     * In Unity go to "File -> Build Settings"

@@ -18,6 +18,7 @@ public class MatchmakingClient
     static string apiEndpoint = "https://YOURENDPOINT.execute-api.us-east-1.amazonaws.com/Prod/";
     public static string identityPoolID = "us-east-1:YOURIDENTITYPOOLID";
     public static string regionString = "us-east-1";
+    public static string secondaryLocationRegionString = "eu-west-1";
     public static Amazon.RegionEndpoint region = Amazon.RegionEndpoint.USEast1;
     // *********************************************************** //
 
@@ -38,12 +39,23 @@ public class MatchmakingClient
     }
 
     // Sends a new matchmaking request ticket to the backend API
-    public MatchMakingRequestInfo RequestMatchMaking()
+    public MatchMakingRequestInfo RequestMatchMaking(Dictionary<string,double> regionLatencies)
     {
         try
         {
             // Do the signed request and wait for max 10 seconds to complete
-            var response = Task.Run(() => this.SendSignedGetRequest(apiEndpoint + "requestmatchmaking"));
+            string latenciesString = "";
+            int i = 0;
+            foreach(var latency in regionLatencies)
+            {
+                // Using _ as the delimiter so that it works with the query string signing correctly
+                latenciesString += latency.Key + "_" + Convert.ToInt32(latency.Value);
+                if (i != regionLatencies.Count - 1)
+                    latenciesString += "_";
+                i++;
+            }
+            Debug.Log("Latencies: " + latenciesString);
+            var response = Task.Run(() => this.SendSignedGetRequest(apiEndpoint + "requestmatchmaking?latencies="+latenciesString));
             response.Wait(10000);
             string jsonResponse = response.Result;
             MatchMakingRequestInfo info = JsonUtility.FromJson<MatchMakingRequestInfo>(jsonResponse);

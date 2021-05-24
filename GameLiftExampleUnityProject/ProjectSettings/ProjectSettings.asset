@@ -569,7 +569,7 @@ PlayerSettings:
   webGLWasmStreaming: 0
   scriptingDefineSymbols:
     1: SERVER
-    4: SERVER
+    4: CLIENT
   platformArchitecture: {}
   scriptingBackend:
     Standalone: 0

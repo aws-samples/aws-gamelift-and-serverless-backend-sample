@@ -5,6 +5,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using Amazon.CognitoIdentity;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System;
 
 // *** MAIN CLIENT CLASS FOR MANAGING CLIENT CONNECTIONS AND MESSAGES ***
 
@@ -19,6 +22,9 @@ public class Client : MonoBehaviour
     // Local player
     private NetworkClient networkClient;
     private NetworkPlayer localPlayer;
+
+    // Latencies
+    private Dictionary<string, double> latencies = new Dictionary<string, double>();
 
     // List of enemy players
     private List<NetworkPlayer> enemyPlayers = new List<NetworkPlayer>();
@@ -57,6 +63,62 @@ public class Client : MonoBehaviour
         return null;
     }
 
+    async Task<double> SendHTTPSPingRequest(string requestUrl)
+    {
+        try
+        {
+            //First request to establish the connection
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(requestUrl),
+            };
+            // Execute the request
+            var client = new HttpClient();
+            var resp = await client.SendAsync(request);
+
+            // We measure the average of second and third requests to get the TCP latency without HTTPS handshake
+            var startTime = DateTime.Now;
+            request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(requestUrl),
+            };
+            resp = await client.SendAsync(request);
+            request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(requestUrl),
+            };
+            resp = await client.SendAsync(request);
+            // Total time
+            var totalTime = (DateTime.Now - startTime).TotalMilliseconds / 2.0;
+            return totalTime;
+        }
+        catch(Exception e)
+        {
+            print("Error reaching the endpoint " + requestUrl + ", setting latency to 1 second");
+            return 1000.0;
+        }
+    }
+
+    void MeasureLatencies()
+    {
+        // We'll ping the two Regions we are using, you can extend to any amount
+        var region1 = MatchmakingClient.regionString;
+        var region2 = MatchmakingClient.secondaryLocationRegionString;
+
+        // Check latencies to Regions by pinging DynamoDB endpoints (they just report health but we use them here for latency)
+        var response = Task.Run(() => this.SendHTTPSPingRequest("https://dynamodb."+ region1 + ".amazonaws.com"));
+        response.Wait(1000); // We'll expect a response in 1 second
+        print(region1 + ":" + response.Result);
+        this.latencies.Add(region1, response.Result);
+        response = Task.Run(() => this.SendHTTPSPingRequest("https://dynamodb." + region2 + ".amazonaws.com"));
+        response.Wait(1000); // We'll expect a response in 1 second
+        print(region2 + ":" + response.Result);
+        this.latencies.Add(region2, response.Result);
+    }
+
     // Called by Unity when the Gameobject is created
     void Start()
     {
@@ -69,6 +131,9 @@ public class Client : MonoBehaviour
         Client.cognitoCredentials = credentials.GetCredentials();
         Debug.Log("Got credentials: " + Client.cognitoCredentials.AccessKey + "," + Client.cognitoCredentials.SecretKey);
 
+        // Get latencies to regions
+        this.MeasureLatencies();
+
         StartCoroutine(ConnectToServer());
     }
 
@@ -80,16 +145,16 @@ public class Client : MonoBehaviour
             // Process any messages we have received over the network
             this.ProcessMessages();
 
-            // Only send updates 10 times per second to avoid flooding server with messages
+            // Only send updates 20 times per second to avoid flooding server with messages
             this.updateCounter += Time.deltaTime;
-            if (updateCounter < 0.1f)
+            if (updateCounter < 0.05f)
             {
                 return;
             }
             this.updateCounter = 0.0f;
 
-            // Send current position data to other players through the server
-            this.SendPosition();
+            // Send current move command for server to process
+            this.SendMove();
 
             // Receive new messages
             this.networkClient.Update();
@@ -107,13 +172,14 @@ public class Client : MonoBehaviour
         // Start network client and connect to server
         this.networkClient = new NetworkClient();
         // We will wait for the matchmaking and connection coroutine to end before creating the player
-        yield return StartCoroutine(this.networkClient.DoMatchMakingAndConnect());
+        yield return StartCoroutine(this.networkClient.DoMatchMakingAndConnect(this.latencies));
 
         if (this.networkClient.ConnectionSucceeded())
         {
             // Create character
             this.localPlayer = new NetworkPlayer(0);
             this.localPlayer.Initialize(characterPrefab, new Vector3(UnityEngine.Random.Range(-5,5), 1, UnityEngine.Random.Range(-5, 5)));
+            this.localPlayer.ResetTarget();
             this.networkClient.SendMessage(this.localPlayer.GetSpawnMessage());
         }
 
@@ -129,12 +195,17 @@ public class Client : MonoBehaviour
         // Go through any messages to process
         foreach (SimpleMessage msg in messagesToProcess)
         {
+            // Own position
+            if (msg.messageType == MessageType.PositionOwn)
+            {
+                this.localPlayer.ReceivePosition(msg, this.characterPrefab);
+            }
             // players spawn and position messages
-            if (msg.messageType == MessageType.Spawn || msg.messageType == MessageType.Position || msg.messageType == MessageType.PlayerLeft)
+            else if (msg.messageType == MessageType.Spawn || msg.messageType == MessageType.Position || msg.messageType == MessageType.PlayerLeft)
             {
                 if (msg.messageType == MessageType.Spawn && this.EnemyPlayerExists(msg.clientId) == false)
                 {
-                    Debug.Log("Enemy spawned: " + msg.float1 + "," + msg.float2 + "," + msg.float3);
+                    Debug.Log("Enemy spawned: " + msg.float1 + "," + msg.float2 + "," + msg.float3 + " ID: " + msg.clientId);
                     NetworkPlayer enemyPlayer = new NetworkPlayer(msg.clientId);
                     this.enemyPlayers.Add(enemyPlayer);
                     enemyPlayer.Spawn(msg, this.enemyPrefab);
@@ -145,7 +216,7 @@ public class Client : MonoBehaviour
                     //Setup enemycharacter if not done yet
                     if (this.EnemyPlayerExists(msg.clientId) == false)
                     {
-                        Debug.Log("Creating new");
+                        Debug.Log("Creating new with ID: " + msg.clientId);
                         NetworkPlayer newPlayer = new NetworkPlayer(msg.clientId);
                         this.enemyPlayers.Add(newPlayer);
                         newPlayer.Spawn(msg, this.enemyPrefab);
@@ -156,12 +227,14 @@ public class Client : MonoBehaviour
 
                     clientsMoved.Add(msg.clientId);
                 }
-                else if(msg.messageType == MessageType.PlayerLeft)
+                else if (msg.messageType == MessageType.PlayerLeft)
                 {
+                    Debug.Log("Player left " + msg.clientId);
                     // A player left, remove from list and delete gameobject
                     NetworkPlayer enemyPlayer = this.GetEnemyPlayer(msg.clientId);
-                    if(enemyPlayer != null)
+                    if (enemyPlayer != null)
                     {
+                        Debug.Log("Found enemy player");
                         enemyPlayer.DeleteGameObject();
                         this.enemyPlayers.Remove(enemyPlayer);
                         justLeftClients.Add(msg.clientId);
@@ -176,14 +249,16 @@ public class Client : MonoBehaviour
         {
             enemyPlayer.InterpolateToTarget();
         }
+
+        // Interpolate player towards his/her current target
+        this.localPlayer.InterpolateToTarget();
     }
 
-    // Sends the position of the local palyer to the server
-    void SendPosition()
+    void SendMove()
     {
         // Send position if changed
-        var newPosMessage = this.localPlayer.GetPositionMessage();
-        if(newPosMessage != null)
+        var newPosMessage = this.localPlayer.GetMoveMessage();
+        if (newPosMessage != null)
             this.networkClient.SendMessage(newPosMessage);
     }
 

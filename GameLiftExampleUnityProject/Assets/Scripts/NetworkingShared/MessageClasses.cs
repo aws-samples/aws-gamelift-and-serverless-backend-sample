@@ -16,7 +16,9 @@ public enum MessageType
     Reject,
     Spawn,
     Position,
-    PlayerLeft
+    PlayerLeft,
+    PositionOwn,
+    PlayerInput
 };
 
 // We will use the same message for all requests so it will include a type and optional float values (used for position and orientation)
@@ -27,6 +29,11 @@ public class SimpleMessage
     {
         this.messageType = type;
         this.message = message;
+    }
+
+    public void SetMoveFloats(float float1, float float2)
+    {
+        this.float1 = float1; this.float2 = float2;
     }
 
     public void SetFloats(float float1, float float2, float float3, float float4, float float5, float float6, float float7)

@@ -185,6 +185,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7e6931ff73724c35986212b1c064457, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerPrefab: {fileID: 4655882291869799809, guid: f8697ba2176fc4bfa995833f566a792d,
+    type: 3}
+  rollingPlayerId: 0
 --- !u!4 &559951046
 Transform:
   m_ObjectHideFlags: 0
@@ -1077,6 +1080,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8ff9237ea85c4078b91878b3c8e78eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  listeningPort: -1
 --- !u!4 &1999402421
 Transform:
   m_ObjectHideFlags: 0

@@ -25,6 +25,8 @@ public class NetworkPlayer
         GameObject.Destroy(this.character);
     }
 
+    public void SetPlayerId(int playerId) { this.playerId = playerId; }
+
     public int GetPlayerId()
     {
         return playerId;
@@ -50,15 +52,37 @@ public class NetworkPlayer
         return message;
     }
 
-    public SimpleMessage GetPositionMessage()
+    // Resets interpolation target to current pos
+    public void ResetTarget()
+    {
+        this.previousPos = this.character.transform.position;
+        this.targetPos = this.character.transform.position;
+        this.targetOrientation = this.character.transform.rotation;
+    }
+
+    public SimpleMessage GetPositionMessage(bool overrideChangedCheck = false)
     {
         Vector3 pos = this.character.transform.position;
-        if(Vector3.Distance(pos, this.previousPos) > 0.01f)
+        if (Vector3.Distance(pos, this.previousPos) > 0.01f || overrideChangedCheck)
         {
             SimpleMessage message = new SimpleMessage(MessageType.Position);
             this.previousPos = pos;
             Quaternion rotation = this.character.transform.rotation;
             message.SetFloats(pos.x, pos.y, pos.z, rotation.x, rotation.y, rotation.z, rotation.w);
+            return message;
+        }
+        return null;
+    }
+
+    public SimpleMessage GetMoveMessage()
+    {
+        SimpleController controller = this.character.GetComponent<SimpleController>();
+        if (controller != null)
+        {
+            float moveX = controller.GetCurrentMoveX();
+            float moveZ = controller.GetCurrentMoveZ();
+            SimpleMessage message = new SimpleMessage(MessageType.PlayerInput);
+            message.SetMoveFloats(moveX, moveZ);
             return message;
         }
         return null;
@@ -88,8 +112,23 @@ public class NetworkPlayer
         }
     }
 
+    // Moves a single physics tick
+    public void Move()
+    {
+        var controller = this.character.GetComponent<SimpleController>();
+        controller.Move();
+    }
+
+    // Set's the input on server (received from clients)
+    public void SetInput(SimpleMessage msg)
+    {
+        var controller = this.character.GetComponent<SimpleController>();
+        controller.SetMove(msg.float1, msg.float2);
+    }
+
     public void ReceivePosition(SimpleMessage msg, GameObject characterPrefab)
     {
+        Debug.Log("Received Pos: " + msg.float1 + "," + msg.float2 + "," + msg.float3);
         //Position
         float x = msg.float1;
         float y = msg.float2;
@@ -117,7 +156,7 @@ public class NetworkPlayer
     {
         Vector3 move = targetPos - this.character.transform.position;
         float distance = move.magnitude;
-        
+
         Vector3 positionDifference = this.targetPos - this.character.transform.position;
         Vector3 interpolateMove = 0.5f * positionDifference;
         this.character.transform.SetPositionAndRotation(this.character.transform.position + interpolateMove, this.targetOrientation);

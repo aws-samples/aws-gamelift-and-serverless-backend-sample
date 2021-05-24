@@ -112,6 +112,7 @@ public class GameLift : MonoBehaviour
 
             //Calling ProcessReady tells GameLift this game server is ready to receive incoming game sessions
             var processReadyOutcome = GameLiftServerAPI.ProcessReady(processParameters);
+
             if (processReadyOutcome.Success)
             {
                 print("ProcessReady success.");

@@ -5,6 +5,7 @@ using System;
 using System.Net.Sockets;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 #if CLIENT
 
@@ -27,12 +28,12 @@ public class NetworkClient
     }
 
     // Calls the matchmaking client to do matchmaking against the backend and then connects to the game server with TCP
-    public IEnumerator DoMatchMakingAndConnect()
+    public IEnumerator DoMatchMakingAndConnect(Dictionary<string,double> regionLatencies)
 	{
 		Debug.Log("Request matchmaking...");
         GameObject.FindObjectOfType<UIManager>().SetTextBox("Requesting matchmaking...");
         yield return null;
-        var matchMakingRequestInfo = this.matchmakingClient.RequestMatchMaking();
+        var matchMakingRequestInfo = this.matchmakingClient.RequestMatchMaking(regionLatencies);
 		Debug.Log("TicketId: " + matchMakingRequestInfo.TicketId);
 
 		if (matchMakingRequestInfo != null)
@@ -203,6 +204,8 @@ public class NetworkClient
 			HandleOtherPlayerSpawned(msg);
 		else if (msg.messageType == MessageType.Position)
 			HandleOtherPlayerPos(msg);
+		else if (msg.messageType == MessageType.PositionOwn)
+			HandlePlayerPos(msg);
 		else if (msg.messageType == MessageType.PlayerLeft)
 			HandleOtherPlayerLeft(msg);
 	}
@@ -226,6 +229,11 @@ public class NetworkClient
 	}
 
 	private void HandleOtherPlayerSpawned(SimpleMessage message)
+	{
+		Client.messagesToProcess.Add(message);
+	}
+
+	private void HandlePlayerPos(SimpleMessage message)
 	{
 		Client.messagesToProcess.Add(message);
 	}

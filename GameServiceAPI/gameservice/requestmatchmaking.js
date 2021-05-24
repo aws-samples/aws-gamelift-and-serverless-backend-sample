@@ -5,7 +5,6 @@ const AWS = require('aws-sdk');
 
 const GameLift = new AWS.GameLift({region: process.env.AWS_REGION});
 
-//TODO: Could be environment variable
 const matchmakingConfigurationName = "ExampleGameConfiguration";
 
 exports.requestMatchMaking = async (event) => {
@@ -59,11 +58,22 @@ exports.requestMatchMaking = async (event) => {
     console.log("Cognito ID: " + event.requestContext.identity.cognitoIdentityId);
     var playerId  = event.requestContext.identity.cognitoIdentityId;
 
+    // Get the latencies from query string
+    var latenciesString = event.queryStringParameters.latencies;
+    var latenciesList = latenciesString.split("_");
+    var regionLatencyMapping = {}
+    for(i = 0; i < latenciesList.length; i+=2)
+    {
+        regionLatencyMapping[latenciesList[i]] = latenciesList[i+1];
+    }
+    console.log(regionLatencyMapping);
+
     //Params for the matchmaking request
     var params = {
         ConfigurationName: matchmakingConfigurationName, 
         Players: [ 
           {
+            LatencyInMs: regionLatencyMapping,
             PlayerAttributes: {
               skill : {
                 N: playerSkill

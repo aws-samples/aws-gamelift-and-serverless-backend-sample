@@ -160,7 +160,7 @@ Resources:
     Properties:
       CodeUri: gameservice/
       Handler: processmatchmakingevents.handler
-      Runtime: nodejs10.x
+      Runtime: nodejs14.x
       Policies:
         - !Ref DynamoDBAccessPolicy
       Events:

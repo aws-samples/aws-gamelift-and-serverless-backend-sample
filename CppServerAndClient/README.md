@@ -26,7 +26,7 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
         * Select "Next Step"
         * Select "Create Environment"
     * **Resize the Cloud9 environment volume**
-        * Go back to the Cloud9 management tab, click on the name of the Cloud9 Environment and select "Go to Instance"
+        * Open Cloud9 Cloud9 management console again in another tab, click on the name of the Cloud9 Environment and select "Go to Instance"
         * Click on the Instance ID
         * Select "Storage" and click on the volume-id
         * Select Actions -> Modify Volume, set the size to 40 and click "Modify" and then "Yes"

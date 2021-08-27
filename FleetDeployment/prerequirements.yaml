@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Unity Game Server Example Prerequirements (Cognito resources and Instance Role)
+Description: Game Server Example Prerequirements (Cognito resources and Instance Role)
 
 Parameters:
   # The Stack name for Backend Resources to get the API Gateway ARN

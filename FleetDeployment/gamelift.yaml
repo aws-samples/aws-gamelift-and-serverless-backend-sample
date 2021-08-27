@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Unity Game Server Example GameLift Resources
+Description: Game Server Example GameLift Resources
 
 Parameters: 
   BuildId: 
@@ -117,8 +117,8 @@ Resources:
   Fleet: 
     Type: AWS::GameLift::Fleet
     Properties: 
-      Name: "UnityExampleLinuxFleet"
-      Description: "A Unity Example Linux Fleet"
+      Name: "ExampleLinuxFleet"
+      Description: "An Example Linux Fleet"
       # We run a secondary location for this Fleet and do latency-based matchmaking between them
       Locations:
         - Location: !Ref SecondaryLocation 
@@ -164,7 +164,7 @@ Resources:
   Alias: 
     Type: AWS::GameLift::Alias
     Properties: 
-      Name: "UnityExampleGameServerAlias"
+      Name: "ExampleGameServerAlias"
       Description: "An alias routing traffic to the fleet"
       RoutingStrategy: 
         Type: "SIMPLE"

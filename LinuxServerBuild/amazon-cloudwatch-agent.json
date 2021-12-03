@@ -12,7 +12,33 @@
               "service_address":":8125",
               "metrics_collection_interval":60,
               "metrics_aggregation_interval":60
-           }
+           },
+           "procstat": [
+            {
+                "pattern": "-port 1935",
+                "measurement": [
+                    "cpu_time",
+                    "cpu_usage",
+                    "read_bytes",
+                    "write_bytes",
+                    "memory_data",
+                    "memory_rss",
+                    "memory_vms"
+                ]
+            },
+            {
+              "pattern": "-port 7777",
+              "measurement": [
+                  "cpu_time",
+                  "cpu_usage",
+                  "read_bytes",
+                  "write_bytes",
+                  "memory_data",
+                  "memory_rss",
+                  "memory_vms"
+              ]
+          }
+          ]
         }
      },
     "logs": {

@@ -202,7 +202,7 @@ Both the client and server are using Unity. The server is built with `SERVER` sc
 
 **CloudWatch Agent**
 
-CloudWatch agent is initialized in the `install.sh` script when a Fleet is created. This will start the agent on each individual instance with the configuration provided in `LinuxServerBuild/amazon-cloudwatch-agent.json`. We will send game session log files from both the server processes with the fixed file names based on the ports. We will also start a StatsD client to send custom metrics to CloudWatch Metrics. It's worth noting that the different Locations of the Fleets will send these metrics and logs to CloudWatch in their own Region.
+CloudWatch agent is initialized in the `install.sh` script when a Fleet is created. This will start the agent on each individual instance with the configuration provided in `LinuxServerBuild/amazon-cloudwatch-agent.json`. We will send game session log files from both the server processes with the fixed file names based on the ports. Process level metrics such as memory and cpu utilization, are sent with the `procstat`-configuration. We identify the processes based on the `-port` parameter in the command line arguments. We will also start a StatsD client to send custom metrics to CloudWatch Metrics. It's worth noting that the different Locations of the Fleets will send these metrics and logs to CloudWatch in their own Region.
 
 A key thing to notice is that we need to define the **Instance Role** to be used by the agent. The IAM Role provided by the instance metatadata will not send metrics and logs correctly as it is a role in the GameLift service accounts.
 

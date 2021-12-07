@@ -71,6 +71,9 @@ public class Server : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Set the target framerate to 30 FPS to avoid running at 100% CPU. Clients send input at 20 FPS
+        Application.targetFrameRate = 30;
+
         var gameliftServer = GameObject.FindObjectOfType<GameLift>();
         server = new NetworkServer(gameliftServer, this);    
     }

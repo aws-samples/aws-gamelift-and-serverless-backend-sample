@@ -55,16 +55,17 @@ The architecture is explained through two diagrams. The first one focuses on the
 
 # Preliminary Setup
 
-1. **Install and configure the AWS CLI**
-    * Follow these instructions to install: [AWS CLI Installation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-    * Configure the CLI: [AWS CLI Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration)
-2. **Install Unity3D 2019 or Unity 2020**
-    * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
-3. **Install SAM CLI**
-    * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-4. **Install Node.js**
-    * Required for the SAM build: [Node.js Downloads](https://nodejs.org/en/download/)
-4. **Install external dependencies**
+1. **Make sure you have the following tools installed**
+    1. **Install and configure the AWS CLI**
+        * Follow these instructions to install: [AWS CLI Installation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+        * Configure the CLI: [AWS CLI Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration)
+    2. **Install Unity3D 2019 or Unity 2020**
+        * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
+    3. **Install SAM CLI**
+        * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+    4. **Install Node.js**
+        * Required for the SAM build: [Node.js Downloads](https://nodejs.org/en/download/)
+2. **Install external dependencies**
     1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server C# SDK (4.5) and **copy** all of the generated dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder. Visual Studio is the best tool to build the project with. **NOTE:** If you're using Unity 2020 LTS, you will need to **rename** the Newtonsoft.Json.dll to something else like Newtonsoft.Json.GameLift.dll as it conflicts with a package that is natively included to Unity in 2020. Make sure to do this **before** upgrading the project to Unity 2020 to avoid upgrade issues.
     2. [Download the AWS .NET SDK](https://sdk-for-net.amazonwebservices.com/latest/v3/aws-sdk-netstandard2.0.zip) and copy the following files to `UnityProject/Assets/Dependencies/`: `AWSSDK.CognitoIdentity.dll`, `AWSSDK.CognitoIdentityProvider.dll`, `AWSSDK.Core.dll`, `AWSSDK.SecurityToken.dll`, `Microsoft.Bcl.AsyncInterfaces.dll`, `System.Threading.Tasks.Extensions.dll`.
     3. [Signature Calculation Example](https://docs.aws.amazon.com/AmazonS3/latest/API/samples/AmazonS3SigV4_Samples_CSharp.zip): **Download** the S3 example for signing API Requests and **copy the folders** `Signers` and `Util` to `GameLiftExampleUnityProject/Assets/Dependencies/` folder. We will use these to sign the requests against API Gateway with Cognito credentials. After this you should not see any errors in your Unity console.

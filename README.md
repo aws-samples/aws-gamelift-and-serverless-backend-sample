@@ -92,22 +92,16 @@ The architecture is explained through two diagrams. The first one focuses on the
     * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2
     * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
     * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
-5. **Build the server build**
-    * In Unity go to "File -> Build Settings"
-    * Go to "Player Settings" and find the Scripting Define Symbols ("Player settings" -> "Player" -> "Other Settings" -> "Scripting Define Symbol")
-    * Replace the the Scripting Define Symbol with `SERVER`. Remember to press Enter after changing the value. C# scripts will use this directive to include server code and exclude client code
-    * Close Player Settings and return to Build Settings
-    * Switch the target platform to `Linux`. If you don't have it available, you need to install Linux platform support in Unity Hub.
-    * Check the box `Server Build`
-    * Build the project to the `LinuxServerBuild` folder (Click "Build" and in new window choose "LinuxServerBuild" folder, enter the **exact name** "GameLiftExampleServer" in "Save as" field and click "Save")
-6. **Deploy the build and the GameLift resources** (`FleetDeployment/deployBuildAndUpdateGameLiftResources.sh`)
+5. **Build the server build and deploy the build and the GameLift resources**
+    * In Unity select "GameLift -> BuildLinuxServer" from the menu. This will set the scripting define symbols to SERVER for the server build and build the server.
+    * Select the `LinuxServerBuild` folder when requested and select "Choose". Wait for the build to finish.
     * Run the script (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)
     * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
     * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
-7. **Build and run two clients**
-    * Set the the Scripting Define Symbol `CLIENT` in the *Player Settings* in the Unity Project (File -> "Build Settings" -> "Player settings" → "Player" → "Other Settings" → "Scripting Define Symbol" → Replace completely to "CLIENT")
-    * Open the scene "GameWorld" in Scenes/GameWorld
-    * Open Build Settings (File -> Build Settings) in Unity and set target platform to `Mac OSX` (or whatever the platform you are using) and *uncheck* the box `Server Build`
+6. **Build and run two clients**
+    * In Unity select "GameLift -> SetClientBuild" from the menu. This will set the scripting define symbols to CLIENT.
+    * Open the scene "GameWorld" in the folder Scenes/
+    * Open Build Settings (File -> Build Settings) in Unity and set target platform to `Mac OSX` (or whatever the platform you are using).
     * Build the client to any folder (Click "Build", select your folder and click "Save")
     * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities. If you run multiple copies of the build, they will have the same identity (and hence same player ID) and will NOT be matched.
     * You will see a 5-10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 5 seconds. It also expects a smaller than 50ms latency for the clients to one of the supported Regions and relaxes this rule to 200ms after 10 seconds. 

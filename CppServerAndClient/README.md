@@ -40,15 +40,14 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
 
 # Deployment
 
-1. **Deploy the Backend API with SAM** (`GameServiceAPI/deploy.sh`)
-    * Open file GameServiceAPI/deploy.sh in the Cloud9 editor
-    * Modify the script to set the `region` variable to your desired main region of the backend (Check from [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) that the region is supported by GameLift FlexMatch))
+1. **Set up your configuration** (`configuration.sh`)
+    * Modify the script to set the `region` variable to your selected region for the backend services and GameLift resources
     * Modify the script to set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
-    * Run the script to deploy the backend API (`cd GameServiceAPI && sh deploy.sh && cd ..`)
-2. **Deploy the Pre-Requirements for the GameLift Resources (Cognito Resources and Instance Role)** (`FleetDeployment/deployPreRequirements.sh`)
-    * Open file FleetDeployment/deployPreRequirements.sh in the Cloud9 editor
-    * Set the region variable in the script to your selected region
-    * Run the script to deploy the CloudFormation stack (`cd FleetDeployment && sh deployPreRequirements.sh && cd ..`)
+    * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the Fleet in two different Regions
+2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.sh`)
+    * Make sure you have the SAM CLI installed
+    * Run the script to deploy the backend API and the PreRequirements Stack (`deployBackendAndPreRequirements.sh`)
+    * This will run two scripts to deploy both the serverless backend with SAM (GameServiceAPI/deploy.sh) as well as the Cognito and IAM resources we need for configuration with CloudFormation (FleetDeployment/deployPreRequirements.sh).
 3. **Set the role to CloudWatch Agent configuration** (`CppServerAndClient/ServerBuild/amazon-cloudwatch-agent.json`)
     * Open file CppServerAndClient/ServerBuild/amazon-cloudwatch-agent.json in the Cloud9 editor
     * Replace the `role_arn` value with role provided as output by the previous script
@@ -69,7 +68,6 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
     * **NOTE**: This will also take some time as it downloads the whole SDK and builds the relevant parts
 6. **Build the server and Deploy the build and the GameLift resources** (`CppServerAndClient/BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh`)
     * You can test that the server compiles correctly by going to `CppServerAndClient/Server/` in the terminal and running `./build.sh`
-    * Open `CppServerAndClient/BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh` and set `region` and `secondaryregion` to the same ones you configured for the client
     * go to `CppServerAndClient` in the Cloud9 terminal and run `./BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh` to Build the server, upload it to GameLift and deploy all the GameLift resources with CloudFormation. This will take time as it will create a GameLift Fleet and deploy game servers to two different Regions. The CloudFormation wait might time out but you can check the progress also in the CloudFormation and GameLift management consoles.
 7. **Build and run two clients**
     * Open `CppServerAndClient/Client/` in two Cloud9 terminals (You can create a new one from the "+" icon)

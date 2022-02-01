@@ -79,8 +79,8 @@ The architecture is explained through two diagrams. The first one focuses on the
     * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the Fleet in two different Regions
 2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.sh`)
     * Make sure you have the SAM CLI installed
-    * Run the script to deploy the backend API and the PreRequirements Stack(`deployBackendAndPreRequirements.sh`)
-    * This will run two scripts to deploy both the serverless backend with SAM (`GameServiceAPI/deploy.sh`) as well as the Cognito and IAM resources we need for configuration with CloudFormation (`FleetDeployment/deployPreRequirements.sh`).
+    * Run the script to deploy the backend API and the PreRequirements Stack (`deployBackendAndPreRequirements.sh`)
+    * This will run two scripts to deploy both the serverless backend with SAM (GameServiceAPI/deploy.sh) as well as the Cognito and IAM resources we need for configuration with CloudFormation (FleetDeployment/deployPreRequirements.sh).
 3. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
     * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
     * Replace the `role_arn` value with role provided as output by the previous script

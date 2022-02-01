@@ -1,6 +1,6 @@
-# GameLift Example with Serverless Backend: C++ Version (Server and Client)
+# GameLift Example with Serverless Backend: C++ Version Server and Client
 
-This subfolder contains the additional files for a C++ -based game server and client. All of the backend architecture, features and templates are used as they are from the main folder. You can refer to the [main README](../README.md) for details on the backend architecture.
+This subfolder contains the details for the C++ -based game server and client. See the [main README](../README.md) for details on the backend architecture.
 
 # Key features
 * **C++-based Game Server running on Amazon Linux 2**
@@ -39,6 +39,8 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
     * Run `cd aws-gamelift-and-serverless-backend-sample/` to open the folder
 
 # Deployment
+
+The backend deployment steps 1-3 are here for convenience, you might have done them already.
 
 1. **Set up your configuration** (`configuration.sh`)
     * Modify the script to set the `region` variable to your selected region for the backend services and GameLift resources

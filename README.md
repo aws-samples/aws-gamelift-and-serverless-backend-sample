@@ -3,19 +3,16 @@
   * [Key Features](#key-features)
   * [Contents](#contents)
   * [Architecture Diagram](#architecture-diagram)
-  * [Preliminary Setup](#preliminary-setup)
+  * [Preliminary Setup for the Backend](#preliminary-setup-for-the-backend)
   * [Deployment with Bash Scripts](#deployment-with-bash-scripts)
   * [Deployment with PowerShell Scripts](#deployment-with-powershell-scripts)
   * [Implementation Overview](#implementation-overview)
-    + [GameLift Resources](#gamelift-resources)
     + [Serverless Backend Service](#serverless-backend-service)
-    + [Game Server](#game-server)
-    + [Game Client](#game-client)
   * [License](#license)
 
-This repository contains a simple GameLift example with a backend service designed for getting started with MacOS, Windows and mobile session-based multiplayer game development and leveraging deployment automation.
+This repository contains a GameLift example solution with a backend service designed for getting started with MacOS, Windows and mobile session-based multiplayer game development and leveraging deployment automation.
 
-The deployment instructions in this Readme are for a Unity-based example. There is also a **C++ Version of the client and server** available. These can be found in the separate **CppServerAndClient** folder which also contains and additional [README](CppServerAndClient/README.md).
+This Readme includes the architecture overview, as well as deployment instructions and documentation for the serverless backend services of the solution. You can then branch out to the Unity and C++ specific Readme files as needed for the game client and game server setup.
 
 **Note**: _“The sample code; software libraries; command line tools; proofs of concept; templates; or other related technology (including any of the foregoing that are provided by our personnel) is provided to you as AWS Content under the AWS Customer Agreement, or the relevant written agreement between you and AWS (whichever applies). You should not use this AWS Content in your production accounts, or on production or other critical data. You are responsible for testing, securing, and optimizing the AWS Content, such as sample code, as appropriate for production grade use based on your specific quality control practices and standards. Deploying AWS Content may incur AWS charges for creating or using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.”_
 
@@ -28,18 +25,18 @@ The deployment instructions in this Readme are for a Unity-based example. There 
 * Deployed with shell (MacOS) or PowerShell (Windows) scripts
 * Includes configuration to push custom logs and metrics to CloudWatch with CloudWatch Agent
 * Client works on multiple platforms including mobile
-* Uses Unity engine for server and client
+* Uses Unity engine or C++ for server and client
 
 The project is a simple "game" where 2-10 players join the same session and move around with their 3D characters. The movement inputs are sent to the server which runs the game simulation on a headless Unity process and syncs state back to all players.
 
 # Contents
 
 The project contains:
-* **A Unity Project** that will be used for both Client and Server builds (`GameLiftExampleUnityProject`)
 * **A Backend Project** created with Serverless Application Model (SAM) to create an API backend for matchmaking requests (`GameServiceAPI`)
 * **Fleet deployment automation** leveraging AWS CloudFormation to deploy all GameLift resources (`FleetDeployment`)
 * **A build folder for the server build** which includes a set of pre-required files for configuration and where you will build your Linux server build from Unity (`LinuxServerBuild`)
-* **An additional C++ version of the game server and client** that replace the Unity server and client of the example but make use of all the same backend functionalities. (`CppServerAndClient`)
+* **A Unity version of the game server and client** (`GameLiftExampleUnityProject`)
+* **An C++ version of the game server and client** (`CppServerAndClient`)
 
 # Architecture Diagrams
 
@@ -53,26 +50,22 @@ The architecture is explained through two diagrams. The first one focuses on the
 
 ![Architecture Diagram Backend](Architecture_small.png "Architecture Diagram Backend")
 
-# Preliminary Setup
+# Preliminary Setup for the Backend
 
 1. **Make sure you have the following tools installed**
     1. **Install and configure the AWS CLI**
         * Follow these instructions to install: [AWS CLI Installation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
         * Configure the CLI: [AWS CLI Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration)
-    2. **Install Unity3D 2019 or Unity 2020**
-        * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
-    3. **Install SAM CLI**
+    2. **Install SAM CLI**
         * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-    4. **Install Node.js**
+    3. **Install Node.js**
         * Required for the SAM build: [Node.js Downloads](https://nodejs.org/en/download/)
-2. **Install external dependencies**
-    1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server C# SDK (4.5) and **copy** all of the generated dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder. Visual Studio is the best tool to build the project with. **NOTE:** If you're using Unity 2020 LTS, you will need to **rename** the Newtonsoft.Json.dll to something else like Newtonsoft.Json.GameLift.dll as it conflicts with a package that is natively included to Unity in 2020. Make sure to do this **before** upgrading the project to Unity 2020 to avoid upgrade issues.
-    2. [Download the AWS .NET SDK](https://sdk-for-net.amazonwebservices.com/latest/v3/aws-sdk-netstandard2.0.zip) and copy the following files to `UnityProject/Assets/Dependencies/`: `AWSSDK.CognitoIdentity.dll`, `AWSSDK.CognitoIdentityProvider.dll`, `AWSSDK.Core.dll`, `AWSSDK.SecurityToken.dll`, `Microsoft.Bcl.AsyncInterfaces.dll`, `System.Threading.Tasks.Extensions.dll`.
-    3. [Signature Calculation Example](https://docs.aws.amazon.com/AmazonS3/latest/API/samples/AmazonS3SigV4_Samples_CSharp.zip): **Download** the S3 example for signing API Requests and **copy the folders** `Signers` and `Util` to `GameLiftExampleUnityProject/Assets/Dependencies/` folder. We will use these to sign the requests against API Gateway with Cognito credentials. After this you should not see any errors in your Unity console.
-5. **Select deployment Region**
+2. **Select deployment Region**
     * The solution can be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
 
 # Deployment with Bash Scripts
+
+Note: If you want to do the end to end deployment in a Cloud9 browser IDE for the C++ solution, please refer to the [C++ deployment README](CppServerAndClient/README.md) for details on how to set that up.
 
 1. **Set up your configuration** (`configuration.sh`)
     * Modify the script to set the `region` variable to your selected region for the backend services and GameLift resources
@@ -86,25 +79,9 @@ The architecture is explained through two diagrams. The first one focuses on the
     * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
     * Replace the `role_arn` value with role provided as output by the previous script
     * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2
-4. **Set the API endpoint and the Cognito Identity Pool to the Unity Project**
-    * Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended)
-    * Set the value of `static string apiEndpoint` to the endpoint created by the backend deployment in `GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
-    * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2
-    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
-    * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
-5. **Build the server build and deploy the build and the GameLift resources**
-    * In Unity select "GameLift -> BuildLinuxServer" from the menu. This will set the scripting define symbols to SERVER for the server build and build the server.
-    * Select the `LinuxServerBuild` folder when requested and select "Choose". Wait for the build to finish.
-    * Run the script (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)
-    * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
-    * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
-6. **Build and run two clients**
-    * In Unity select "GameLift -> BuildMacOSClient" or ""GameLift -> BuildWindowsClient" based on your platform. This will set the scripting define symbols to CLIENT and do the build.
-    * Create a folder in your preferred location and select "Choose" to build.
-    * Open the scene "GameWorld" in the folder Scenes/
-    * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities for matchmaking to work.
-    * You will see a 5-10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 5 seconds. It also expects a smaller than 50ms latency for the clients to one of the supported Regions and relaxes this rule to 200ms after 10 seconds. 
-    * **The clients need to connect within 20 seconds** as this is the timeout value for the matchmaking
+4. **Move to Unity or C++ instructions** for the game server and client builds deployment
+    * [Unity deployment README](CppServerAndClient/README_UnityClientServer.md)
+    * [C++ deployment README](CppServerAndClient/README.md)
 
 # Deployment with PowerShell Scripts
 
@@ -121,47 +98,11 @@ The architecture is explained through two diagrams. The first one focuses on the
 3. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
     * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
     * Replace the `role_arn` value with role provided as output by the previous script
-    * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2
-4. **Set the API endpoint and the Cognito Identity Pool to the Unity Project**
-    * Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended)
-    * Set the value of `static string apiEndpoint` to the endpoint created by the backend deployment in `GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
-    * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2
-    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
-    * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
-5. **Build the server build and deploy the build and the GameLift resources**
-    * In Unity select "GameLift -> BuildLinuxServer" from the menu. This will set the scripting define symbols to SERVER for the server build and build the server.
-    * Select the `LinuxServerBuild` folder when requested and select "Choose". Wait for the build to finish.
-    * Open file FleetDeployment/deployBuildAndUpdateGameLiftResources.ps1 in your favourite text editor
-    * Set the region variable in the script to your selected region
-    * Set the secondaryregion variable in the script to your selected secondary location as we're running the Fleet in two different Regions (this will be used by the latency-based matchmaking)
-    * Run the script `deployBuildAndUpdateGameLiftResources.ps1`
-    * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
-    * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
-6. **Build and run two clients**
-    * In Unity select "GameLift -> BuildMacOSClient" or ""GameLift -> BuildWindowsClient" based on your platform. This will set the scripting define symbols to CLIENT and do the build.
-    * Create a folder in your preferred location and select "Choose" to build.
-    * Open the scene "GameWorld" in Scenes/GameWorld
-    * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities for matchmaking to work.
-    * You will see a 5-10 second delay in case you connect only 2 clients. This is because the matchmaking expects 4 clients minimum and will relax the rules after 5 seconds. It also expects a smaller than 50ms latency for the clients to one of the supported Regions and relaxes this rule to 200ms after 10 seconds.
-    * **The clients need to connect within 20 seconds** as this is the timeout value for the matchmaking
+    * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2s
+4. **Move to Unity instructions** for the game server and client builds deployment. C++ deployment doesn't support Windows currently.
+    * [Unity deployment README](CppServerAndClient/README_UnityClientServer.md)
 
 # Implementation Overview
-
-## GameLift Resources
-
-GameLift resources are deployed with CloudFormation templates. Two CloudFormation Stacks are created by the shell scripts: **GameLiftExamplePreRequirements** with `prerequirements.yaml` template and **GameliftExampleResources** with `gamelift.yaml` template.
-
-### GameLiftExamplePreRequirements Stack
-
-  * an **IAM Role** for the GameLift Fleet EC2 instances that allows access to CloudWatch to push logs and custom metrics
-  * a **Cognito Identity Pool** that will be used to store player identities and the associated **IAM Roles** for unauthenticated and authenticated users that clients use to access the backend API through API Gateway. We don't authenticate users in the example but you could connect their Facebook identitities for example or any custom identities to Cognito
-
-### GameLiftExampleResources Stack
-
-  * a **FlexMatch Matchmaking Rule Set** that defines a single team with 4 to 10 players and a requirement for the player skill levels to be within a distance of 10. All players will have the same skill level in the example that is stored in DynamoDB by the backend service. There is also an expansion to relax the rules to minimum of 2 players after 5 seconds. When you connect with 2 clients, you will see this 5 second delay before the expansion is activated. The FlexMatch Rule Set also defines a latency requirement of < 50ms for the clients. This is relaxed to 200ms after 10 seconds. The clients make HTTPS requests to Amazon endpoints to measure their latency and send this data to the backend which forwards it to the matchmaker.
-  * a **FlexMatch Matchmaking Configuration** that uses the Rule Set and routes game session placement requests to the Queue.
-  * a **GameLift Queue** that is used to place game sessions on the GameLift Fleet. In the example we have a single fleet behind the Queue and it has two Regional locations (home Region and one secondary Region Location). You could have multiple Fleets within the Home Region (for example a Spot Fleet and a failover On-Demand Fleet for cost optimization). The queue has latency configuration for selecting the best Region for each group of players generated by FlexMatch based on their latency.
-  * a **GameLift Fleet** that sits behind the Queue and uses the latest game server build uploaded by the `deployBuildAndUpdateGameLiftResources.sh` script. The Fleet has two Regional locations and runs on Amazon Linux 2 and there are two game server processes running on each instance. The ports for the processes are defined as parameters to the game server process and matching ports are enabled for inbound traffic to the fleet. You can pack more game servers on each instance based on the instance size and the resource requirements of your server. Our example uses C5.Large instance type which is a good starting point for compute intensive workloads.
 
 ## Serverless Backend Service
 
@@ -172,6 +113,11 @@ The backend contains three key Lambda functions: **RequestMatchmakingFunction** 
 **ProcessMatchmakingEventsFunction** is triggered by Amazon SNS events published by GameLift FlexMatch. It will catch the MatchmakingSucceeded events and write the results in DynamoDB Table "GameLiftExampleMatchmakingTickets". RequestMatchStatusFunction will use the DynamoDB table to check if a ticket has succeeded matchmaking. This way we don't need to use the DescribeMatchmaking API of GameLift which can easily throttle with a large player count. The DynamoDB Table also has a TTL field and and configuration which means the tickets will be automatically removed after one hour of creation.
 
 The SAM template defines IAM Policies to allow the Lambda functions to access both GameLift to request matchmaking as well as DynamoDB to access the player data. It is best practice to never allow game clients to access these resources directly as this can open different attack vectors to your resources.
+
+### GameLiftExamplePreRequirements Stack
+
+  * an **IAM Role** for the GameLift Fleet EC2 instances that allows access to CloudWatch to push logs and custom metrics
+  * a **Cognito Identity Pool** that will be used to store player identities and the associated **IAM Roles** for unauthenticated and authenticated users that clients use to access the backend API through API Gateway. We don't authenticate users in the example but you could connect their Facebook identitities for example or any custom identities to Cognito
 
 ## Game Server
 
@@ -204,7 +150,6 @@ Client uses AWS .NET SDK to request a Cognito Identity and connects to the Serve
   * `Scripts/Client/Client.cs`: This is the main class of the client that initiates the matchmaking and connects to the server. It also processes all messages received from the server and updates the associated player entities based on them. Enemy players will be spawned and removed as they join and leave and their movement will be interpolated based on the position messages received. We will also send move commands from our local player to the server here.
   * `Scripts/Client/MatchMakingClient.cs`: This is the HTTPS client to the backend service that makes the signed requests to request matchmaking and request the status of a matchmaking ticket.
   * `Scripts/Client/NetworkClient.cs`: This is the TCP Client class that manages the TCP connection to the server and sending/receiving of messages. It uses NetworkProtocol in `NetworkProtocol.cs` to serialize and deserialize messages in a binary format in the same way as the server. 
-
 
 # License
 

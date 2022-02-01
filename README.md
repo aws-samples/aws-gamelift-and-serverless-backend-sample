@@ -58,7 +58,7 @@ The architecture is explained through two diagrams. The first one focuses on the
 1. **Install and configure the AWS CLI**
     * Follow these instructions to install: [AWS CLI Installation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
     * Configure the CLI: [AWS CLI Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration)
-2. **Install Unity3D 2019**
+2. **Install Unity3D 2019 or Unity 2020**
     * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
 3. **Install SAM CLI**
     * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
@@ -73,16 +73,14 @@ The architecture is explained through two diagrams. The first one focuses on the
 
 # Deployment with Bash Scripts
 
-1. **Deploy the Backend API with SAM** (`GameServiceAPI/deploy.sh`)
-    * Make sure you have the SAM CLI installed
-    * Open file GameServiceAPI/deploy.sh in your favourite text editor
-    * Modify the script to set the `region` variable to your selected region
+1. **Set up your configuration** (`configuration.sh`)
+    * Modify the script to set the `region` variable to your selected region for the backend services and GameLift resources
     * Modify the script to set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
-    * Run the script to deploy the backend API (`cd GameServiceAPI && sh deploy.sh && cd ..`)
-2. **Deploy the Pre-Requirements for the GameLift Resources (Cognito Resources and Instance Role)** (`FleetDeployment/deployPreRequirements.sh`)
-    * Open file FleetDeployment/deployPreRequirements.sh in your favourite text editor
-    * Set the region variable in the script to your selected region
-    * Run the script (`cd FleetDeployment && sh deployPreRequirements.sh && cd ..`)
+    * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the Fleet in two different Regions
+2. **Deploy the Backend API with SAM and PreRequirements with CloudFromation** (`deployBackendAndPreRequirements.sh`)
+    * Make sure you have the SAM CLI installed
+    * Run the script to deploy the backend API and the PreRequirements Stack (`./deployBackendAndPreRequirements.sh`)
+    * This will run two scripts to deploy both the serverless backend (`GameServiceAPI/deploy.sh`) as well as the Cognito and IAM resources we need for configuration (`FleetDeployment/deployPreRequirements.sh`).
 3. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
     * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
     * Replace the `role_arn` value with role provided as output by the previous script
@@ -102,9 +100,6 @@ The architecture is explained through two diagrams. The first one focuses on the
     * Check the box `Server Build`
     * Build the project to the `LinuxServerBuild` folder (Click "Build" and in new window choose "LinuxServerBuild" folder, enter the **exact name** "GameLiftExampleServer" in "Save as" field and click "Save")
 6. **Deploy the build and the GameLift resources** (`FleetDeployment/deployBuildAndUpdateGameLiftResources.sh`)
-    * Open file FleetDeployment/deployBuildAndUpdateGameLiftResources.sh in your favourite text editor
-    * Set the region variable in the script to your selected region
-    * Set the secondaryregion variable in the script to your selected secondary location as we're running the Fleet in two different Regions (this will be used by the latency-based matchmaking)
     * Run the script (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)
     * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
     * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation

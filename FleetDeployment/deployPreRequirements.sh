@@ -1,6 +1,7 @@
 #!/bin/bash
 
-region="us-east-1"
+# Get the configuration variables
+source ../configuration.sh
 
 # Returns the status of a stack
 getstatusofstack() {

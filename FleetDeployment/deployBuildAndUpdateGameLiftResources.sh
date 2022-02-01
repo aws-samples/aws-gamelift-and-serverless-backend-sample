@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# Home Region of the GameLift resources and the Fleet
-region="us-east-1"
-# Region for the Fleet's second Location
-secondaryregion="eu-west-1"
+# Get the configuration variables
+source ../configuration.sh
 
 # Returns the status of a stack
 getstatusofstack() {

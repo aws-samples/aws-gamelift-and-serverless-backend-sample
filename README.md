@@ -12,7 +12,7 @@
 
 This repository contains a GameLift example solution with a backend service designed for getting started with MacOS, Windows and mobile session-based multiplayer game development and leveraging deployment automation.
 
-This Readme includes the architecture overview, as well as deployment instructions and documentation for the serverless backend services of the solution. You can then branch out to the Unity and C++ specific Readme files as needed for the game client and game server setup.
+This Readme includes the architecture overview, as well as deployment instructions and documentation for the serverless backend services of the solution. You can then branch out to the Unity and C++ specific Readmes ([Unity deployment README](README_UnityClientServer.md) or [C++ deployment README](CppServerAndClient/README.md) as needed for the game client, game server setup and GameLift resources setup.
 
 **Note**: _“The sample code; software libraries; command line tools; proofs of concept; templates; or other related technology (including any of the foregoing that are provided by our personnel) is provided to you as AWS Content under the AWS Customer Agreement, or the relevant written agreement between you and AWS (whichever applies). You should not use this AWS Content in your production accounts, or on production or other critical data. You are responsible for testing, securing, and optimizing the AWS Content, such as sample code, as appropriate for production grade use based on your specific quality control practices and standards. Deploying AWS Content may incur AWS charges for creating or using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.”_
 
@@ -80,7 +80,7 @@ Note: If you want to do the end to end deployment in a Cloud9 browser IDE for th
     * Replace the `role_arn` value with role provided as output by the previous script
     * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2
 4. **Move to Unity or C++ instructions** for the game server and client builds deployment
-    * [Unity deployment README](CppServerAndClient/README_UnityClientServer.md)
+    * [Unity deployment README](README_UnityClientServer.md)
     * [C++ deployment README](CppServerAndClient/README.md)
 
 # Deployment with PowerShell Scripts
@@ -100,7 +100,7 @@ Note: If you want to do the end to end deployment in a Cloud9 browser IDE for th
     * Replace the `role_arn` value with role provided as output by the previous script
     * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2s
 4. **Move to Unity instructions** for the game server and client builds deployment. C++ deployment doesn't support Windows currently.
-    * [Unity deployment README](CppServerAndClient/README_UnityClientServer.md)
+    * [Unity deployment README](README_UnityClientServer.md)
 
 # Implementation Overview
 

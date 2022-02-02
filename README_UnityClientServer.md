@@ -1,6 +1,7 @@
 # GameLift Example with Serverless Backend: Unity Version Server and Client
 
   * [Preliminary Setup](#preliminary-setup)
+  * [Architecture Diagram](#architecture-diagram)
   * [Deployment with Bash Scripts](#deployment-with-bash-scripts)
   * [Deployment with PowerShell Scripts](#deployment-with-powershell-scripts)
   * [Implementation Overview](#implementation-overview)
@@ -10,6 +11,16 @@
   * [License](#license)
 
 This Readme contains the details for the Unity-based game server and client. See the [main README](../README.md) for details on the backend architecture.
+
+**Note**: _“The sample code; software libraries; command line tools; proofs of concept; templates; or other related technology (including any of the foregoing that are provided by our personnel) is provided to you as AWS Content under the AWS Customer Agreement, or the relevant written agreement between you and AWS (whichever applies). You should not use this AWS Content in your production accounts, or on production or other critical data. You are responsible for testing, securing, and optimizing the AWS Content, such as sample code, as appropriate for production grade use based on your specific quality control practices and standards. Deploying AWS Content may incur AWS charges for creating or using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.”_
+
+# Architecture Diagram
+
+The architecture diagram introduced here focuses on the GameLift resources.
+
+### GameLift Resources
+
+![Architecture Diagram GameLift Resources](Architecture_gamelift.png "Architecture Diagram GameLift Resources")
 
 # Preliminary Setup
 

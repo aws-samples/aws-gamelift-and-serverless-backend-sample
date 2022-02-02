@@ -13,6 +13,14 @@ This subfolder contains the details for the C++ -based game server and client. S
 
 **Note**: _“The sample code; software libraries; command line tools; proofs of concept; templates; or other related technology (including any of the foregoing that are provided by our personnel) is provided to you as AWS Content under the AWS Customer Agreement, or the relevant written agreement between you and AWS (whichever applies). You should not use this AWS Content in your production accounts, or on production or other critical data. You are responsible for testing, securing, and optimizing the AWS Content, such as sample code, as appropriate for production grade use based on your specific quality control practices and standards. Deploying AWS Content may incur AWS charges for creating or using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.”_
 
+# Architecture Diagram
+
+The architecture diagram introduced here focuses on the GameLift resources.
+
+### GameLift Resources
+
+![Architecture Diagram GameLift Resources](Architecture_gamelift.png "Architecture Diagram GameLift Resources")
+
 # Preliminary Setup
 
 The easiest way to test the example is to use an **AWS Cloud9** environment. [AWS Cloud9](https://aws.amazon.com/cloud9/) is a cloud-based IDE running on an Amazon Linux 2 instance. It's perfect for GameLift server development as the environment is the same as the final execution environment on GameLift. It's possible to run all the scripts over SSH or Session Manager session to an Amazon Linux 2 instance as well.

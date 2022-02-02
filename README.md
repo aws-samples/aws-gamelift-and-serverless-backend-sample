@@ -38,13 +38,9 @@ The project contains:
 * **A Unity version of the game server and client** (`GameLiftExampleUnityProject`)
 * **An C++ version of the game server and client** (`CppServerAndClient`)
 
-# Architecture Diagrams
+# Architecture Diagram
 
-The architecture is explained through two diagrams. The first one focuses on the GameLift resources and the second one on the serverless backend. Both diagrams contain all components of the solution, just the level of detail is different based on the focus.
-
-### GameLift Resources
-
-![Architecture Diagram GameLift Resources](Architecture_gamelift.png "Architecture Diagram GameLift Resources")
+The architecture diagram introduced here focuses on the serverless backend but it also includes the GameLift components on a high level. See the Unity and C++ Readmes for detailed GameLift resource diagrams.
 
 ### Serverless Backend
 

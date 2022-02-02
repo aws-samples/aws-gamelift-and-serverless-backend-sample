@@ -19,7 +19,7 @@ The architecture diagram introduced here focuses on the GameLift resources.
 
 ### GameLift Resources
 
-![Architecture Diagram GameLift Resources](Architecture_gamelift.png "Architecture Diagram GameLift Resources")
+![Architecture Diagram GameLift Resources](../Architecture_gamelift.png "Architecture Diagram GameLift Resources")
 
 # Preliminary Setup
 

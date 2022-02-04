@@ -38,6 +38,7 @@ The architecture diagram introduced here focuses on the GameLift resources.
         2. Download AWS SDK for .NET Standard 2.0 and copy the relevant files to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK`)
         3. Download the the S3 example for signing API Requests with SigV4 and copy the relevant folders (Signers and Util) to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/`)
 3. **Add the Unity Project to UnityHub and open it** (`GameLiftExampleUnityProject`)
+    * You will likely need to upgrade the project to a newer Unity version. Select "Choose another editor version" in UnityHub and select "Open with XXXX.X.XX" depending on your version
     * In case the dependencies were installed correctly in step 2, you should see no errors
 
 # Deployment with Bash Scripts

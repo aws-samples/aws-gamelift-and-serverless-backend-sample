@@ -25,10 +25,14 @@ The architecture diagram introduced here focuses on the GameLift resources.
 # Preliminary Setup
 
 1. **Install Unity3D 2019 or Unity 2020**
-    * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
+  * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
 2. **Install external dependencies**
-    1. [GameLift Server SDK](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-unity-using.html): **Download** and **build** the GameLift Server C# SDK (4.5) and **copy** all of the generated dll files to `GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/` folder. Visual Studio is the best tool to build the project with. **NOTE:** If you're using Unity 2020 LTS, you will need to **rename** the Newtonsoft.Json.dll to something else like Newtonsoft.Json.GameLift.dll as it conflicts with a package that is natively included to Unity in 2020. Make sure to do this **before** upgrading the project to Unity 2020 to avoid upgrade issues.
-    2. **Run the script `downloadAndSetupUnityDependencies.sh` in your terminal**. It will 1) download AWS SDK for .NET Standard 2.0, 2) download the the S3 example for signing API Requests with SigV4 and 3) copy the needed files to the `GameLiftExampleUnityProject/Assets/Dependencies/` folder in the Unity project Assets. TODO: Powershell option!
+  * MacOS: **Run the script `downloadAndSetupUnityDependencies.sh` in your terminal**
+  * Windows: TODO
+  * The script will
+      1. Download and build the GameLift Server SDK and copy the relevant files to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK`)
+      2. Download AWS SDK for .NET Standard 2.0 and copy the relevant files to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK`)
+      3. Download the the S3 example for signing API Requests with SigV4 and copy the relevant folders (Signers and Util) to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/`)
 
 # Deployment with Bash Scripts
 

@@ -17,6 +17,13 @@ public class Client : MonoBehaviour
     public GameObject characterPrefab;
 	public GameObject enemyPrefab;
 
+    // NOTE: Don't edit these here as they are overwritten by values in the Client GameObject, set in Inspector instead
+    public string apiEndpoint = "https://<YOUR-API-ENDPOINT./Prod/";
+    public string identityPoolID = "<YOUR-IDENTITY-POOL-ID>";
+    public string regionString = "us-east-1";
+    public string secondaryLocationRegionString = "us-west-2";
+    public Amazon.RegionEndpoint region = Amazon.RegionEndpoint.USEast1; // This will be automatically set based on regionString
+
 #if CLIENT
 
     // Local player
@@ -105,8 +112,8 @@ public class Client : MonoBehaviour
     void MeasureLatencies()
     {
         // We'll ping the two Regions we are using, you can extend to any amount
-        var region1 = MatchmakingClient.regionString;
-        var region2 = MatchmakingClient.secondaryLocationRegionString;
+        var region1 = this.regionString;
+        var region2 = this.secondaryLocationRegionString;
 
         // Check latencies to Regions by pinging DynamoDB endpoints (they just report health but we use them here for latency)
         var response = Task.Run(() => this.SendHTTPSPingRequest("https://dynamodb."+ region1 + ".amazonaws.com"));
@@ -124,10 +131,14 @@ public class Client : MonoBehaviour
     {
         FindObjectOfType<UIManager>().SetTextBox("Setting up Client..");
 
+        // Get the Region enum from the string value
+        this.region = Amazon.RegionEndpoint.GetBySystemName(regionString);
+        Debug.Log("My Region endpoint: " + this.region);
+
         // Get an identity and connect to server
         CognitoAWSCredentials credentials = new CognitoAWSCredentials(
-            MatchmakingClient.identityPoolID,
-            MatchmakingClient.region);
+            this.identityPoolID,
+            this.region);
         Client.cognitoCredentials = credentials.GetCredentials();
         Debug.Log("Got credentials: " + Client.cognitoCredentials.AccessKey + "," + Client.cognitoCredentials.SecretKey);
 

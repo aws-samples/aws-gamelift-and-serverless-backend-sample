@@ -40,10 +40,10 @@ The architecture diagram introduced here focuses on the GameLift resources.
 # Deployment with Bash Scripts
 
 1. **Set the API endpoint and the Cognito Identity Pool to the Unity Project**
+    * Open the game scene `Scenes/GameWorld` in Unity, select the GameObject `Client` and open Inspector
     * Set the value of `static string apiEndpoint` to the endpoint created by the backend deployment in `GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2
-    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
-    * NOTE: At this point, this part of the code might not compiled if the project is in Server build configuration. The code might show up greyed out in your editor.
+    * Set the value of `public static string regionString` to the value of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
 2. **Build the server build and deploy the build and the GameLift resources**
     * In Unity select "GameLift -> BuildLinuxServer" from the menu. This will set the scripting define symbols to SERVER for the server build and build the server.
     * Select the `LinuxServerBuild` folder when requested and select "Choose". Wait for the build to finish.
@@ -61,11 +61,10 @@ The architecture diagram introduced here focuses on the GameLift resources.
 # Deployment with PowerShell Scripts
 
 1. **Set the API endpoint and the Cognito Identity Pool to the Unity Project**
-    * Open Unity Hub, add the GameLiftExampleUnityProject and open it (Unity 2019.2.16 or higher recommended)
+    * Open the game scene `Scenes/GameWorld` in Unity, select the GameObject `Client` and open Inspector
     * Set the value of `static string apiEndpoint` to the endpoint created by the backend deployment in `GameLiftExampleUnityProject/Assets/Scripts/Client/MatchmakingClient.cs`. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `static string identityPoolID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2
-    * Set the value of `public static string regionString` and `public static Amazon.RegionEndpoint region` to the values of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
-    * NOTE: At this point, this part of the code is not compiled because we are using Server build configuration. The code might show up greyed out in your editor.
+    * Set the value of `public static string regionString` to the value of your selected region. Set the value of `secondaryLocationRegionString` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
 2. **Build the server build and deploy the build and the GameLift resources**
     * In Unity select "GameLift -> BuildLinuxServer" from the menu. This will set the scripting define symbols to SERVER for the server build and build the server.
     * Select the `LinuxServerBuild` folder when requested and select "Choose". Wait for the build to finish.

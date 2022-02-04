@@ -12,13 +12,13 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using System.IO;
 
-#if SERVER
-
 // *** MONOBEHAVIOUR TO MANAGE SERVER LOGIC *** //
 
 public class Server : MonoBehaviour
 {
     public GameObject playerPrefab;
+
+    #if SERVER
 
     // List of players
     public List<NetworkPlayer> players = new List<NetworkPlayer>();
@@ -534,5 +534,6 @@ public class NetworkServer
             System.Console.WriteLine("Failed to disconnect player: " + e.Message);
         }
 	}
+
+    #endif
 }
-#endif

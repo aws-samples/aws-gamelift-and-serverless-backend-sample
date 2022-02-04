@@ -27,9 +27,9 @@ The architecture diagram introduced here focuses on the GameLift resources.
 1. **Install Unity3D 2019 or Unity 2020**
     * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
     * Don't open the Unity project yet as we still need to download and build dependencies!
-2. **Install Visual Studio for MacOS**
-    * Go to [Visual Studio website](https://visualstudio.microsoft.com/vs/mac/) and follow the instructions for installing
-    * Visual Studio is required to build the GameLift Server SDK in the next step
+2. **Install Mono (MacOS)**
+    * Go to [Mono Project Download Page](https://www.mono-project.com/download/stable/) and follow the instructions for installing
+    * Mono will come with the build tools needed in the next step
 2. **Install external dependencies**
     * MacOS: **Run the script `downloadAndSetupUnityDependencies.sh` in your terminal**
     * Windows: TODO

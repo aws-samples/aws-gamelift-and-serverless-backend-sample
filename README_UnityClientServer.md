@@ -26,6 +26,7 @@ The architecture diagram introduced here focuses on the GameLift resources.
 
 1. **Install Unity3D 2019 or Unity 2020**
   * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
+  * Don't open the Unity project yet as we still need to download and build dependencies!
 2. **Install external dependencies**
   * MacOS: **Run the script `downloadAndSetupUnityDependencies.sh` in your terminal**
   * Windows: TODO
@@ -33,6 +34,8 @@ The architecture diagram introduced here focuses on the GameLift resources.
       1. Download and build the GameLift Server SDK and copy the relevant files to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK`)
       2. Download AWS SDK for .NET Standard 2.0 and copy the relevant files to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK`)
       3. Download the the S3 example for signing API Requests with SigV4 and copy the relevant folders (Signers and Util) to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/`)
+3. **Add the Unity Project to UnityHub and open it** (`GameLiftExampleUnityProject`)
+  * In case the dependencies were installed correctly in step 2, you should see no errors
 
 # Deployment with Bash Scripts
 

@@ -51,6 +51,7 @@ mkdir aws-sdk-temp
 unzip aws-sdk-netstandard2.0.zip -d aws-sdk-temp
 
 echo "Copying files to the Unity project..."
+mkdir aws-sdk-temp/AWSSDK.CognitoIdentity.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK
 cp aws-sdk-temp/AWSSDK.CognitoIdentity.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
 cp aws-sdk-temp/AWSSDK.CognitoIdentityProvider.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
 cp aws-sdk-temp/AWSSDK.Core.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/

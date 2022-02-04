@@ -102,8 +102,16 @@ public class NetworkClient
 		{
 			//Connect with matchmaking info
 			Debug.Log("Connect..");
-			client = new TcpClient(this.matchStatusInfo.IpAddress, this.matchStatusInfo.Port);
-            client.NoDelay = true; // Use No Delay to send small messages immediately. UDP should be used for even faster messaging
+			this.client = new TcpClient();
+			var result = client.BeginConnect(this.matchStatusInfo.IpAddress, this.matchStatusInfo.Port, null, null);
+
+			var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2));
+
+			if (!success)
+			{
+				throw new Exception("Failed to connect.");
+			}
+			client.NoDelay = true; // Use No Delay to send small messages immediately. UDP should be used for even faster messaging
 			Debug.Log("Done");
 
 			// Send the player session ID to server so it can validate the player

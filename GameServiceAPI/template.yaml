@@ -170,6 +170,22 @@ Resources:
             Topic:
               !Ref MatchmakingEventsSNSTopic
 
+  # CloudFormation Dashboard for backend metrics
+  DashboardBackendMetrics:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: GameLift-Game-Backend-Metrics
+      DashboardBody:
+       Fn::Sub:
+        |-
+        {"widgets":[{"type": "metric","x": 0,"y": 0,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "Invocations", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Sum", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Sum", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Sum", "label": "RequestMatchmakingFunction" } ],[ { "expression": "SUM(METRICS())", "label": "Total Invocations", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "Invocations"}},
+                    {"type": "metric","x": 8, "y": 0,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "Errors", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Sum", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Sum", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Sum", "label": "RequestMatchmakingFunction" } ],[ { "expression": "SUM(METRICS())", "label": "Total Errors", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "Errors"}},
+                    {"type": "metric","x": 16,"y": 0,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "Duration", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Average", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Average", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Average", "label": "RequestMatchmakingFunction" } ],[ { "expression": "AVG(METRICS())", "label": "Average Duration", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "Duration (average)"}},
+                    {"type": "metric","x": 0,"y": 6,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "ConcurrentExecutions", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Maximum", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Maximum", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Maximum", "label": "RequestMatchmakingFunction" } ],[ { "expression": "SUM(METRICS())", "label": "Total ConcurrentExecutions", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "ConcurrentExecutions"}}           
+        ]}
+  
+
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM

@@ -31,6 +31,12 @@ public class ClientServerConfiguration : Editor
     [MenuItem("GameLift/BuildLinuxServer")]
     private static void BuildLinuxServer()
     {
+        if (Application.unityVersion.Contains("2021"))
+        {
+            Debug.Log("Running on Unity 2021, create a dedicated server build manually, save it in LinuxServerBuild folder with the EXACT name GameLiftExampleServer");
+            return;
+        }
+
         // We cannot set scripting define symbols here because it corrupts the game world, so we need the user to set them beforehand
         if (EditorApplication.isCompiling)
         {

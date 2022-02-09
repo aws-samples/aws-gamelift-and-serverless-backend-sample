@@ -135,7 +135,7 @@ public class MatchmakingClient
             try
             {
                 if (header.Key != null && header.Value != null)
-                    request.Headers.Add(header.Key, header.Value);
+                    request.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
             catch (Exception e)
             {

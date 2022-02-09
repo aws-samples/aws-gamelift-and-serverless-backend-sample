@@ -71,11 +71,8 @@ Note: If you want to do the end to end deployment in a Cloud9 browser IDE for th
     * Make sure you have the SAM CLI installed
     * Run the script to deploy the backend API and the PreRequirements Stack (`deployBackendAndPreRequirements.sh`)
     * This will run two scripts to deploy both the serverless backend with SAM (GameServiceAPI/deploy.sh) as well as the Cognito and IAM resources we need for configuration with CloudFormation (FleetDeployment/deployPreRequirements.sh).
-3. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
-    * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
-    * Replace the `role_arn` value with role provided as output by the previous script
-    * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2
-4. **Move to Unity or C++ instructions** for the game server and client builds deployment
+    * The script will automatically replace the `role_arn` value in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack
+3. **Move to Unity or C++ instructions** for the game server and client builds deployment
     * [Unity deployment README](README_UnityClientServer.md)
     * [C++ deployment README](CppServerAndClient/README.md)
 

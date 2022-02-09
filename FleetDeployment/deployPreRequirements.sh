@@ -26,8 +26,12 @@ else
   echo "Done updating stack!"
 fi
 
-echo "You need to set this Role ARN to the cloudwatch agent configuration in /LinuxServerBuild/amazon-cloudwatch-agent.json:"
+echo "We need to set this Role ARN to the cloudwatch agent configuration in /LinuxServerBuild/amazon-cloudwatch-agent.json:"
 echo $(aws cloudformation --region $region describe-stacks --stack-name GameLiftExamplePreRequirements --query "Stacks[0].Outputs[0].OutputValue")
+echo "Configuring the role in /LinuxServerBuild/amazon-cloudwatch-agent.json..."
+rolearn=$(aws cloudformation --region $region describe-stacks --stack-name GameLiftExamplePreRequirements --query "Stacks[0].Outputs[0].OutputValue")
+sed -i -e "s|.*role_arn.*|        \"role_arn\": $rolearn|" ../LinuxServerBuild/amazon-cloudwatch-agent.json
+echo "Done!"
 echo ""
 echo "You need this Identity pool ID in NetworkClient.cs:"
 echo $(aws cloudformation --region $region describe-stacks --stack-name GameLiftExamplePreRequirements --query "Stacks[0].Outputs[1].OutputValue")

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
+using System.Threading;
 
 public class ClientServerConfiguration : Editor 
 {
@@ -9,9 +10,13 @@ public class ClientServerConfiguration : Editor
     private static void ServerBuild()
     {
         // Set scripting define symbols
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, "SERVER");
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, "SERVER");
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, "SERVER");
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, "SERVER;UNITY_SERVER");
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, "SERVER;UNITY_SERVER");
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, "SERVER;UNITY_SERVER");
+
+        UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+
+        Debug.LogWarning("Complilation will start soon and you need to wait for that to finish before building the server...");
     }
 
     [MenuItem("GameLift/SetAsClientBuild")]
@@ -26,15 +31,24 @@ public class ClientServerConfiguration : Editor
     [MenuItem("GameLift/BuildLinuxServer")]
     private static void BuildLinuxServer()
     {
-        // Set scripting define symbols
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, "SERVER;UNITY_SERVER");
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, "SERVER;UNITY_SERVER");
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, "SERVER;UNITY_SERVER");
+        // We cannot set scripting define symbols here because it corrupts the game world, so we need the user to set them beforehand
+        if (EditorApplication.isCompiling)
+        {
+            Debug.LogWarning("Wait for compilation to finish!");
+            return;
+        }
+
+        // We cannot set scripting define symbols here because it corrupts the game world, so we need the user to set them beforehand
+        if (PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone) != "SERVER;UNITY_SERVER")
+        {
+            Debug.LogWarning("Select \"SetAsServerBuild\" from the menu before building the server!");
+            return;
+        }
 
         // Get filename
         string path = EditorUtility.SaveFolderPanel("Choose Location of Server Build", "", "");
-        string[] levels = new string[] { "Assets/Scenes/GameWorld.unity"};
 
+        // Define the build settings
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
         buildPlayerOptions.scenes = new[] { "Assets/Scenes/GameWorld.unity"};
         buildPlayerOptions.locationPathName = path + "/GameLiftExampleServer.x86_64";

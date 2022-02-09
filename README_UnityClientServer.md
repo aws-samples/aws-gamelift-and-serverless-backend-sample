@@ -50,13 +50,15 @@ The architecture diagram introduced here focuses on the GameLift resources.
     * Set the value of `Identity Pool ID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2 of the backend deployment.
     * Set the value of `Region String` to the value of your selected region. Set the value of `Secondary Location Region String` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
 2. **Build the server build and deploy the build and the GameLift resources**
-    * In Unity select "GameLift -> BuildLinuxServer" from the menu. This will set the scripting define symbols to SERVER for the server build and build the server.
+    * In Unity select "GameLift -> SetAsServerBuild" from the menu. This will set the scripting define symbols to SERVER configuration. You will need to wait some time for the scripts to recompile before the next step.
+    * In Unity select "GameLift -> BuildLinuxServer" from the menu. This will build the server. You might be notified if the script compilation is in progress. If that happens, wait a while and retry.
     * Select the `LinuxServerBuild` folder when requested and select "Choose". Wait for the build to finish.
     * Run the script (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)
     * This will take some time as the fleet instance AMI will be built and all the GameLift resources deployed
     * You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
 3. **Build and run two clients**
-    * In Unity select "GameLift -> BuildMacOSClient" or ""GameLift -> BuildWindowsClient" based on your platform. This will set the scripting define symbols to CLIENT and do the build.
+    * In Unity select "GameLift -> SetAsServerBuild" from the menu. This will set the scripting define symbols to CLIENT configuration. You will need to wait some time for the scripts to recompile before the next step.
+    * In Unity select "GameLift -> BuildMacOSClient" or ""GameLift -> BuildWindowsClient" based on your platform to build the client.
     * Create a folder in your preferred location and select "Choose" to build.
     * Open the scene "GameWorld" in the folder Scenes/
     * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities for matchmaking to work.

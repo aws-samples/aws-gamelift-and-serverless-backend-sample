@@ -38,8 +38,8 @@ Resources:
             }],
             "teams": [{
                 "name": "oneteam",
-                "maxPlayers": 10,
-                "minPlayers": 4
+                "maxPlayers": 5,
+                "minPlayers": 1
             }],
             "rules": [{
                 "name": "FairSkill",
@@ -57,15 +57,10 @@ Resources:
               "maxLatency": 50
             }],
             "expansions": [{
-                "target": "teams[oneteam].minPlayers",
-                "steps": [{
-                    "waitTimeSeconds": 5,
-                    "value": 2
-                }]},{
-                "target": "rules[FastConnection].maxLatency",
-                "steps": [{
-                    "waitTimeSeconds": 10,
-                    "value": 200
+                  "target": "rules[FastConnection].maxLatency",
+                  "steps": [{
+                      "waitTimeSeconds": 10,
+                      "value": 200
                 }]
             }]
         }
@@ -100,8 +95,8 @@ Resources:
       AcceptanceRequired: false
       AdditionalPlayerCount: 0
       RequestTimeoutSeconds: 25
-      BackfillMode: "MANUAL"
-      Description: "A basic matchmaking configuration"
+      BackfillMode: "AUTOMATIC"
+      Description: "A basic matchmaking configuration that matched 1 to 5 players based on latency"
       # Just some example properties, not used in our game
       GameProperties:
         - Key: "gamemode"

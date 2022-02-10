@@ -238,8 +238,8 @@ public class NetworkServer
             client.NoDelay = true; // Use No Delay to send small messages immediately. UDP should be used for even faster messaging
             System.Console.WriteLine("Client accepted.");
 
-            // We have a maximum of 10 clients per game
-            if(this.clients.Count < 10)
+            // We have a maximum of 5 clients per game
+            if(this.clients.Count < 5)
             {
                 // Add client and give it the Id of the value of rollingPlayerId
                 this.clients.Add(client, this.server.rollingPlayerId);
@@ -460,9 +460,9 @@ public class NetworkServer
         // start the game once we have at least one client online
         this.readyClients.Add(client);
 
-        if (readyClients.Count >= 2)
+        if (readyClients.Count >= 1)
         {
-            System.Console.WriteLine("Enough clients, let's start the game!");
+            System.Console.WriteLine("We have our first player in, let's start the game!");
             this.gamelift.StartGame();
         }
 	}

@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# 0. Check that we have the tools installed
+
+if ! [ -x "$(command -v nuget)" ]; then
+  echo 'Error: nuget is not installed. See README for Mono installation details'
+  exit 1
+fi
+
+if ! [ -x "$(command -v msbuild)" ]; then
+  echo 'Error: msbuild is not installed. See README for Mono installation details'
+  exit 1
+fi
+
 ############################
 
 # 1. Download and build the GameLift Server SDK

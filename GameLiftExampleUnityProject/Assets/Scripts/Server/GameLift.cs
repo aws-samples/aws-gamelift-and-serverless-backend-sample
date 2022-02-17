@@ -6,6 +6,7 @@
 using UnityEngine;
 using Aws.GameLift.Server;
 using System.Collections.Generic;
+using Aws.GameLift.Server.Model;
 
 public class GameLift : MonoBehaviour
 {
@@ -23,9 +24,15 @@ public class GameLift : MonoBehaviour
     private string gameSessionId;
     public string GetGameSessionID() { return gameSessionId; }
 
+    // Matchmaker data
+    MatchmakerData matchmakerData;
+
     // StatsD client for sending custom metrics to CloudWatch through the local StatsD agent
     private SimpleStatsdClient statsdClient;
     public SimpleStatsdClient GetStatsdClient() { return statsdClient; }
+
+    // Backfill ticket ID (received and updated on game session updates)
+    string backfillTicketID = null;
 
     // Get the port to host the server from the command line arguments
     private int GetPortFromArgs()
@@ -82,6 +89,22 @@ public class GameLift : MonoBehaviour
 
                     //Send session started to CloudWatch just for testing
                     this.statsdClient.SendCounter("game.SessionStarted", 1);
+
+                    System.Console.WriteLine("Matchmaker data New session:" + gameSession.MatchmakerData);
+                    this.matchmakerData = MatchmakerData.FromJson(gameSession.MatchmakerData);
+                    this.backfillTicketID = this.matchmakerData.AutoBackfillTicketId;
+
+                },
+                (gameSession) => {
+                    //Respond to game session updates
+
+                    System.Console.WriteLine("backfill ticked ID update session:" + gameSession.BackfillTicketId);
+
+                    if (gameSession.BackfillTicketId != null)
+                    {
+                        System.Console.WriteLine("Updating backfill ticked ID: " + gameSession.BackfillTicketId);
+                        this.backfillTicketID = gameSession.BackfillTicketId;
+                    }
                 },
                 () => {
                     //OnProcessTerminate callback. GameLift invokes this callback before shutting down 
@@ -137,7 +160,19 @@ public class GameLift : MonoBehaviour
         GameObject.FindObjectOfType<Server>().DisconnectAll();
         this.gameStarted = false;
 
+        // Stop the backfilling
+        if (this.backfillTicketID != null)
+        {
+            System.Console.WriteLine("Stopping backfill");
+            var stopBackfill = new StopMatchBackfillRequest();
+            stopBackfill.TicketId = this.backfillTicketID;
+            stopBackfill.MatchmakingConfigurationArn = this.matchmakerData.MatchmakingConfigurationArn;
+            stopBackfill.GameSessionArn = GameLiftServerAPI.GetGameSessionId().Result;
+            GameLiftServerAPI.StopMatchBackfill(stopBackfill);
+        }
+
         // Terminate the process following GameLift best practices. A new one will be started automatically
+        System.Console.WriteLine("Terminating process");
         GameLiftServerAPI.ProcessEnding();
         Application.Quit();
     }

@@ -8,6 +8,8 @@ using Amazon.CognitoIdentity;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 // *** MAIN CLIENT CLASS FOR MANAGING CLIENT CONNECTIONS AND MESSAGES ***
 
@@ -16,6 +18,11 @@ public class Client : MonoBehaviour
     // Prefabs for the player and enemy objects referenced from the scene object
     public GameObject characterPrefab;
 	public GameObject enemyPrefab;
+
+    // Reference to the Start Game  and restart Buttons
+    public Button startGameButton;
+    private bool gameStartRequested = false;
+    public Button restartButton;
 
     // NOTE: Don't edit these here as they are overwritten by values in the Client GameObject, set in Inspector instead
     public string apiEndpoint = "https://<YOUR-API-ENDPOINT./Prod/";
@@ -126,26 +133,46 @@ public class Client : MonoBehaviour
         this.latencies.Add(region2, response.Result);
     }
 
+    // Called when restart button is clicked
+    void Restart()
+    {
+        this.networkClient.Disconnect();
+        SceneManager.LoadScene(0);
+    }
+
     // Called by Unity when the Gameobject is created
     void Start()
     {
-        FindObjectOfType<UIManager>().SetTextBox("Setting up Client..");
+        this.startGameButton.onClick.AddListener(StartGame);
+        this.restartButton.onClick.AddListener(Restart);
+    }
 
-        // Get the Region enum from the string value
-        this.region = Amazon.RegionEndpoint.GetBySystemName(regionString);
-        Debug.Log("My Region endpoint: " + this.region);
+    // Called when Start game button is clicked
+    void StartGame()
+    {
+        if (!this.gameStartRequested)
+        {
+            this.startGameButton.gameObject.SetActive(false);
+            this.gameStartRequested = true;
 
-        // Get an identity and connect to server
-        CognitoAWSCredentials credentials = new CognitoAWSCredentials(
-            this.identityPoolID,
-            this.region);
-        Client.cognitoCredentials = credentials.GetCredentials();
-        Debug.Log("Got credentials: " + Client.cognitoCredentials.AccessKey + "," + Client.cognitoCredentials.SecretKey);
+            FindObjectOfType<UIManager>().SetTextBox("Setting up Client..");
 
-        // Get latencies to regions
-        this.MeasureLatencies();
+            // Get the Region enum from the string value
+            this.region = Amazon.RegionEndpoint.GetBySystemName(regionString);
+            Debug.Log("My Region endpoint: " + this.region);
 
-        StartCoroutine(ConnectToServer());
+            // Get an identity and connect to server
+            CognitoAWSCredentials credentials = new CognitoAWSCredentials(
+                this.identityPoolID,
+                this.region);
+            Client.cognitoCredentials = credentials.GetCredentials();
+            Debug.Log("Got credentials: " + Client.cognitoCredentials.AccessKey + "," + Client.cognitoCredentials.SecretKey);
+
+            // Get latencies to regions
+            this.MeasureLatencies();
+
+            StartCoroutine(ConnectToServer());
+        }
     }
 
     // Update is called once per frame

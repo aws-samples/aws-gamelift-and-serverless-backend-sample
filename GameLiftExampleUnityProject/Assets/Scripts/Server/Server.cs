@@ -143,7 +143,7 @@ public class Server : MonoBehaviour
                 // Only handle input if the player exists
                 if (this.PlayerExists(msg.clientId))
                 {
-                    Debug.Log("Player moved: " + msg.float1 + "," + msg.float2 + " ID: " + msg.clientId);
+                    //Debug.Log("Player moved: " + msg.float1 + "," + msg.float2 + " ID: " + msg.clientId);
 
                     if (this.PlayerExists(msg.clientId))
                     {
@@ -489,7 +489,7 @@ public class NetworkServer
         // Get client id (this is the value in the dictionary where the TCPClient is the key)
         int clientId = this.clients[client];
 
-        System.Console.WriteLine("Got move from client: " + clientId + " with input: " + message.float1 + "," + message.float2);
+        //System.Console.WriteLine("Got move from client: " + clientId + " with input: " + message.float1 + "," + message.float2);
 
         // Add client ID
         message.clientId = clientId;

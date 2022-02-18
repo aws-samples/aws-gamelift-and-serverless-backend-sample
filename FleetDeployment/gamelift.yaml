@@ -132,8 +132,6 @@ Resources:
             LaunchPath: /local/game/GameLiftExampleServer.x86_64
             Parameters: -logFile /local/game/logs/myserver7777.log -port 7777
       EC2InstanceType: "c5.large"
-      # We want exactly one instance (no scaling allowed in the example)
-      DesiredEC2Instances: "1"
       #Create TLS certificate for optional encrypted client-server traffic
       CertificateConfiguration:
         CertificateType: GENERATED
@@ -189,4 +187,11 @@ Resources:
                     {"type":"metric","x":10,"y":18,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_memory_rss\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60)", "id": "mem2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"Memory Usage RSS ${SecondaryLocation}"}}
 
         ]}
+
+Outputs:
+  FleetID:
+    Description: The ID of the created GameLift Fleet
+    Value: !Ref Fleet
+    Export:
+      Name: !Sub "${AWS::StackName}-FleetID"
  

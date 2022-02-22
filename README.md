@@ -111,6 +111,7 @@ The SAM template defines IAM Policies to allow the Lambda functions to access bo
 
   * an **IAM Role** for the GameLift Fleet EC2 instances that allows access to CloudWatch to push logs and custom metrics
   * a **Cognito Identity Pool** that will be used to store player identities and the associated **IAM Roles** for unauthenticated and authenticated users that clients use to access the backend API through API Gateway. We don't authenticate users in the example but you could connect their Facebook identitities for example or any custom identities to Cognito
+  * a **CloudWatch Dashboard** (*GameLift-Game-Backend-Metrics*) that aggregates a number of metrics from the backend including API Gateway, Lambda and DynamoDB metrics. 
 
 # License
 

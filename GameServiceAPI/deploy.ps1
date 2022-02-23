@@ -1,15 +1,19 @@
-$region="us-east-1"
-
-$deploymentbucketname="<YOUR-BUCKET-NAME>"
+# Get the configuration variables
+if (-not (Test-Path -Path "$PsScriptRoot\..\configuration.xml")) {
+    throw 'The configuration file does not exist'
+} else {
+    Write-Host 'Loading configuration file'
+    [xml]$Config = Get-Content "$PsScriptRoot\..\configuration.xml"
+}
 
 # Create deployment bucket if it doesn't exist
-if ($region -eq "us-east-1") {
-    aws s3api create-bucket --bucket $deploymentbucketname --region $region
-} else {
-    aws s3api create-bucket --bucket $deploymentbucketname --region $region --create-bucket-configuration LocationConstraint=$region
+if ($Config.Settings.AccountSettings.Region -eq "us-east-1") {
+    aws s3api create-bucket --bucket $Config.Settings.S3Settings.DeploymentBucketName --region $Config.Settings.AccountSettings.Region
+    } else {
+    aws s3api create-bucket --bucket $Config.Settings.S3Settings.DeploymentBucketName --region $Config.Settings.AccountSettings.Region --create-bucket-configuration LocationConstraint="$($Config.Settings.AccountSettings.Region)"
 }
 
 # Build, package and deploy the backend
 sam build
-sam package --s3-bucket $deploymentbucketname --output-template-file gameservice.yaml
-sam deploy --template-file gameservice.yaml --region $region --capabilities CAPABILITY_IAM --stack-name gameservice-backend
+sam package --s3-bucket $Config.Settings.S3Settings.DeploymentBucketName --output-template-file gameservice.yaml --region $Config.Settings.AccountSettings.Region
+sam deploy --template-file gameservice.yaml --region $Config.Settings.AccountSettings.Region --capabilities CAPABILITY_IAM --stack-name gameservice-backend

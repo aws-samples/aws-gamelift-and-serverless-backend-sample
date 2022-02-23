@@ -33,5 +33,5 @@ rolearn=$(aws cloudformation --region $region describe-stacks --stack-name GameL
 sed -i -e "s|.*role_arn.*|        \"role_arn\": $rolearn|" ../LinuxServerBuild/amazon-cloudwatch-agent.json
 echo "Done!"
 echo ""
-echo "You need this Identity pool ID in NetworkClient.cs:"
+echo "You need this Identity pool ID for your client configuration"
 echo $(aws cloudformation --region $region describe-stacks --stack-name GameLiftExamplePreRequirements --query "Stacks[0].Outputs[1].OutputValue")

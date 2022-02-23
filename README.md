@@ -64,11 +64,10 @@ The architecture diagram introduced here focuses on the serverless backend but i
 Note: If you want to do the end to end deployment in a Cloud9 browser IDE for the C++ solution, please refer to the [C++ deployment README](CppServerAndClient/README.md) for details on how to set that up.
 
 1. **Set up your configuration** (`configuration.sh`)
-    * Modify the script to set the `region` variable to your selected region for the backend services and GameLift resources
-    * Modify the script to set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
+    * Set the `region` variable to your selected region for the backend services and GameLift resources
+    * Set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
     * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the Fleet in two different Regions
 2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.sh`)
-    * Make sure you have the SAM CLI installed
     * Run the script to deploy the backend API and the PreRequirements Stack (`deployBackendAndPreRequirements.sh`)
     * This will run two scripts to deploy both the serverless backend with SAM (GameServiceAPI/deploy.sh) as well as the Cognito and IAM resources we need for configuration with CloudFormation (FleetDeployment/deployPreRequirements.sh).
     * The script will automatically replace the `role_arn` value in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack
@@ -78,20 +77,19 @@ Note: If you want to do the end to end deployment in a Cloud9 browser IDE for th
 
 # Deployment with PowerShell Scripts
 
-1. **Deploy the Backend API with SAM** (`GameServiceAPI/deploy.ps1`)
-    * Make sure you have the SAM CLI installed
-    * Open file GameServiceAPI/deploy.ps1 in your favourite text editor
-    * Modify the script to set the `region` variable to your selected region
-    * Modify the script to set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
-    * Run the `deploy.ps1` script
-2. **Deploy the Pre-Requirements** (`FleetDeployment/deployPreRequirements.ps1`)
-    * Open file FleetDeployment/deployPreRequirements.ps1 in your favourite text editor
-    * Set the region variable in the script to your selected region
-    * Run the `deployPreRequirements.ps1` script
+1. **Set up your configuration** (`configuration.xml`)
+    * Set the `Region` value to your selected region for the backend services and GameLift resources
+    * Set the `DeploymentBucketName` to a **globally unique** name for the code deployment bucket
+    * Set the `SecondaryRegion` value in the script to your selected secondary location as we're running the Fleet in two different Regions
+2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.ps1`)
+    * Run the script to deploy the backend API and the PreRequirements Stack (`./deployBackendAndPreRequirements.ps1`)
+    * This will run two scripts to deploy both the serverless backend with SAM (GameServiceAPI/deploy.ps1) as well as the Cognito and IAM resources we need for configuration with CloudFormation (FleetDeployment/deployPreRequirements.ps1).
+    * Select 'R' when prompted to run the individual scripts
+    * The script will automatically replace the `role_arn` value in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack
 3. **Set the role to CloudWatch Agent configuration** (`LinuxServerBuild/amazon-cloudwatch-agent.json`)
     * Open file LinuxServerBuild/amazon-cloudwatch-agent.json in your favourite text editor
     * Replace the `role_arn` value with role provided as output by the previous script
-    * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2s
+    * You can also find the ARN in the CloudFormation stack, in IAM console or as output of Step 2
 4. **Move to Unity instructions** for the game server and client builds deployment. C++ deployment doesn't support Windows currently.
     * [Unity deployment README](README_UnityClientServer.md)
 

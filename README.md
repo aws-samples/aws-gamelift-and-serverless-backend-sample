@@ -65,7 +65,7 @@ Note: If you want to do the end to end deployment in a Cloud9 browser IDE for th
 
 1. **Set up your configuration** (`configuration.sh`)
     * Set the `region` variable to your selected region for the backend services and GameLift resources
-    * Set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
+    * Set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket. The deployment script in step 2 will create this S3 bucket for storing backend code artifacts.
     * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the Fleet in two different Regions
 2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.sh`)
     * Run the script to deploy the backend API and the PreRequirements Stack (`deployBackendAndPreRequirements.sh`)
@@ -79,7 +79,7 @@ Note: If you want to do the end to end deployment in a Cloud9 browser IDE for th
 
 1. **Set up your configuration** (`configuration.xml`)
     * Set the `Region` value to your selected region for the backend services and GameLift resources
-    * Set the `DeploymentBucketName` to a **globally unique** name for the code deployment bucket
+    * Set the `DeploymentBucketName` to a **globally unique** name for the code deployment bucket. The deployment script in step 2 will create this S3 bucket for storing backend code artifacts.
     * Set the `SecondaryRegion` value in the script to your selected secondary location as we're running the Fleet in two different Regions
 2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.ps1`)
     * Run the script to deploy the backend API and the PreRequirements Stack (`./deployBackendAndPreRequirements.ps1`)

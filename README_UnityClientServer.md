@@ -26,20 +26,22 @@ The architecture diagram introduced here focuses on the GameLift resources.
 
 1. **Install Unity3D 2019 or Unity 2020**
     * Use the instructions on Unity website for installing: [Unity Hub Installation](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
-    * Make sure to install the **Linux build target** for server builds, and your local build target (MacOS or Windows) for local client builds
+    * Make sure to install the **Linux build target** for server builds, and your local build target (MacOS or Windows) for local client builds. In Unity Hub, go to *Installs*, select *Add Modules* from the configuration menu and add both Linux Build Support options.
     * Don't open the Unity project yet as we still need to download and build dependencies!
-2. **Install Mono**
-    * Go to [Mono Project Download Page](https://www.mono-project.com/download/stable/) and follow the instructions for installing
-    * Mono will come with the build tools needed in the next step
-    * **Windows only**:
+2. **Install Build Tools**
+    * **MacOS**
+      * Go to [Mono Project Download Page](https://www.mono-project.com/download/stable/) and follow the instructions for installing
+      * Mono will come with the build tools needed in the next step
+    * **Windows**:
       * [Download Visual Studio 2019 Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe), select "Dotnet Desktop Build Tools" and install
       * In Visual Studio Build Tools 2019: *Select Modify -> Individual Components Tab -> Select .NET Framework 4.5 Targeting Pack -> Select Modify*
       * Add the bin path to your PATH in environment variables (for example *C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin*)
       * [Download nuget](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) to the root of the repository
       * 
 2. **Install external dependencies**
-    * *MacOS*: **Run the script `downloadAndSetupUnityDependencies.sh` in your terminal**
-    * *Windows*:
+    * **MacOS**:
+        * **Run the script `downloadAndSetupUnityDependencies.sh` in your terminal**
+    * **Windows**:
         * Make sure you have a relatively short path from the root to the repository (for example C:\github\gamelift-serverless\). Otherwise the GameLift Server SDK build phase can fail because of file path lengths.
         * **Run the script `downloadAndSetupUnityDependencies.ps1` in Powershell**
     * The script will

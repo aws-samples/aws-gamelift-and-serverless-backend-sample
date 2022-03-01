@@ -31,7 +31,7 @@ else {
 
 # Unzip, build and copy the files to the correct folder in the Unity project
 Write-Host "Unzipping to temporary folder..."
-mkdir glsdk
+New-Item -Path "./" -Name "glsdk" -ItemType "directory" -Force
 Expand-Archive -Path GameLift_06_03_2021.zip -DestinationPath "$PsScriptRoot\glsdk\" -Force
 
 #  Build the SDK in Release
@@ -42,12 +42,12 @@ msbuild GameLiftServerSDKNet45.sln -property:Configuration=Release
 
 # Copy the output files to the project
 Write-Host "Copying files.."
-cp Net45/bin/Release/* ../../../GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/
+Copy-Item "Net45/bin/Release/*" -Destination "../../../GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK" -Force
 cd ../../..
 Remove-Item -Recurse -Force glsdk
 
 # Fix the Newtonsoft JSON dll name because Unity 2020 has overlapping dll
-mv GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/Newtonsoft.Json.dll GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/Newtonsoft.Json.GameLift.dll 
+Move-Item -Path "GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/Newtonsoft.Json.dll" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/GameLiftServerSDK/Newtonsoft.Json.GameLift.dll" -Force 
 
 Write-Host "Done!"
 
@@ -64,17 +64,17 @@ else {
 
 # Unzip and copy the files to the correct folder in the Unity project
 Write-Host "Unzipping to temporary folder..."
-mkdir aws-sdk-temp
+New-Item -Path "./" -Name "aws-sdk-temp" -ItemType "directory" -Force
 Expand-Archive -Path aws-sdk-netstandard2.0.zip -DestinationPath "$PsScriptRoot\aws-sdk-temp\" -Force
 
 Write-Host "Copying files to the Unity project..."
-mkdir  GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK
-cp aws-sdk-temp/AWSSDK.CognitoIdentity.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
-cp aws-sdk-temp/AWSSDK.CognitoIdentityProvider.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
-cp aws-sdk-temp/AWSSDK.Core.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
-cp aws-sdk-temp/AWSSDK.SecurityToken.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
-cp aws-sdk-temp/Microsoft.Bcl.AsyncInterfaces.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
-cp aws-sdk-temp/System.Threading.Tasks.Extensions.dll GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/
+New-Item -Path "GameLiftExampleUnityProject/Assets/Dependencies/" -Name "AWSSDK" -ItemType "directory" -Force
+Copy-Item "aws-sdk-temp/AWSSDK.CognitoIdentity.dll" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/" -Force
+Copy-Item "aws-sdk-temp/AWSSDK.CognitoIdentityProvider.dll*" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/" -Force
+Copy-Item "aws-sdk-temp/AWSSDK.Core.dll" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/" -Force
+Copy-Item "aws-sdk-temp/AWSSDK.SecurityToken.dll" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/" -Force
+Copy-Item "aws-sdk-temp/Microsoft.Bcl.AsyncInterfaces.dll" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/" -Force
+Copy-Item "aws-sdk-temp/System.Threading.Tasks.Extensions.dll" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/AWSSDK/" -Force
 Write-Host "Removing the temporary files..."
 Remove-Item -Recurse -Force aws-sdk-temp
 
@@ -93,15 +93,15 @@ else {
 
 # Unzip and copy the files to the correct folder in the Unity project
 Write-Host "Unzipping to temporary folder..."
-mkdir signaturecalculation-temp
+New-Item -Path "./" -Name "signaturecalculation-temp" -ItemType "directory" -Force
 Expand-Archive -Path AmazonS3SigV4_Samples_CSharp.zip -DestinationPath "$PsScriptRoot\signaturecalculation-temp\" -Force
 
 Write-Host "Copying files to the Unity project..."
-mkdir GameLiftExampleUnityProject/Assets/Dependencies/Signers/
-mkdir GameLiftExampleUnityProject/Assets/Dependencies/Util/
-cp -r signaturecalculation-temp/AWSSignatureV4-S3-Sample/Signers/ GameLiftExampleUnityProject/Assets/Dependencies/Signers/
-cp -r signaturecalculation-temp/AWSSignatureV4-S3-Sample/Util/ GameLiftExampleUnityProject/Assets/Dependencies/Util/
+New-Item -Path "GameLiftExampleUnityProject/Assets/Dependencies//" -Name "Signers" -ItemType "directory" -Force
+New-Item -Path "GameLiftExampleUnityProject/Assets/Dependencies/" -Name "Util" -ItemType "directory" -Force
+Copy-Item "signaturecalculation-temp/AWSSignatureV4-S3-Sample/Signers/*" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/Signers/" -Force -Recurse
+Copy-Item "signaturecalculation-temp/AWSSignatureV4-S3-Sample/Util/*" -Destination "GameLiftExampleUnityProject/Assets/Dependencies/Util/" -Force -Recurse
 Write-Host "Removing the temporary files..."
 Remove-Item -Recurse -Force signaturecalculation-temp
 
-Write-Host "Done!"
+echo "Done!"

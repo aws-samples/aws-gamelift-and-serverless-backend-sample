@@ -29,7 +29,7 @@ The architecture diagram introduced here focuses on the GameLift resources.
     * Make sure to install the **Linux build target** for server builds, and your local build target (MacOS or Windows) for local client builds. In Unity Hub, go to *Installs*, select *Add Modules* from the configuration menu and add both Linux Build Support options.
     * Don't open the Unity project yet as we still need to download and build dependencies!
 2. **Install Build Tools**
-    * **MacOS**
+    * **MacOS**:
       * Go to [Mono Project Download Page](https://www.mono-project.com/download/stable/) and follow the instructions for installing
       * Mono will come with the build tools needed in the next step
     * **Windows**:

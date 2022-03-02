@@ -37,7 +37,13 @@ Expand-Archive -Path GameLift_06_03_2021.zip -DestinationPath "$PsScriptRoot\gls
 #  Build the SDK in Release
 Write-Host "Building the SDK..."
 cd glsdk/GameLift-SDK-Release-4.0.2/GameLift-CSharp-ServerSDK-4.0.2/
-./../../../nuget restore
+
+# Retarget to 4.7.2 which is installed with Visual Studio Build Tools 2022
+$con = Get-Content ./Net45/GameLiftServerSDKNet45.csproj
+$con | % { $_.Replace("v4.5", "v4.7.2") } | Set-Content ./Net45/GameLiftServerSDKNet45.csproj
+
+# Restore packages and Build the SDK
+../../../nuget restore
 msbuild GameLiftServerSDKNet45.sln -property:Configuration=Release
 
 # Copy the output files to the project

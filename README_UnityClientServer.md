@@ -34,11 +34,9 @@ The architecture diagram introduced here focuses on the GameLift resources.
       * Go to [Mono Project Download Page](https://www.mono-project.com/download/stable/) and follow the instructions for installing
       * Mono will come with the build tools needed in the next step
     * **Windows**:
-      * [Download Visual Studio 2019 Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe), select "Dotnet Desktop Build Tools" and install
-      * In Visual Studio Build Tools 2019: *Select Modify -> Individual Components Tab -> Select .NET Framework 4.5 Targeting Pack -> Select Modify*
+      * [Download Visual Studio 2022 Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe), select "Dotnet Desktop Build Tools" and install. This should install 4.7.2 framework that we use by default, please check it is included (If not, you can add it separately afterward by modifying the install)
       * Add the bin path to your PATH in environment variables (for example *C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin*)
       * [Download nuget](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) to the root of the repository
-      * 
 2. **Install external dependencies**
     * **MacOS**:
         * **Run the script `downloadAndSetupUnityDependencies.sh` in your terminal**

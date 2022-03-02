@@ -59,7 +59,7 @@ The architecture diagram introduced here focuses on the serverless backend but i
     3. **Install Node.js**
         * Required for the SAM build: [Node.js Downloads](https://nodejs.org/en/download/)
 3. **Select deployment Region**
-    * The solution can be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
+    * The default AWS Regions for the solution are us-east-1 for backend and GameLift home region and eu-west-2 for GameLift secondary region. The fastest option is to not modify these. The solution can however be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
 
 # Deployment with Bash Scripts
 
@@ -90,7 +90,7 @@ Before starting, navigate to the repository root in your Powershell and open the
 2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.ps1`)
     * Run the script to deploy the backend API and the PreRequirements Stack (`./deployBackendAndPreRequirements.ps1`)
     * This will run two scripts to deploy both the serverless backend with SAM (*GameServiceAPI/deploy.ps1*) as well as the Cognito and IAM resources we need for configuration with CloudFormation (*FleetDeployment/deployPreRequirements.ps1*).
-    * Select 'R' when prompted to run the individual scripts
+    * Select 'R' if prompted to run the individual scripts
     * Replace the value of `role_arn` in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack. You can find this as an output of the deployment script or as an Output of the GameLiftExamplePreRequirements stack in CloudFormation.
 3. **Move to Unity instructions** for the game server and client builds deployment. C++ deployment doesn't support Windows currently.
     * [Unity deployment README](README_UnityClientServer.md)

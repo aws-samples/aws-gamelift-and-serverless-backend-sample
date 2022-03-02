@@ -32,7 +32,7 @@ $buildid = aws gamelift list-builds --query $query --output text --region $Confi
 $stackstatus=Get-Status-Of-Stack GameliftExampleResources
 $secondaryregion = $Config.Settings.AccountSettings.SecondaryRegion
 if ($null -eq $stackstatus) {
-  Write-Host "Creating stack for example fleet (this will take some time)..."
+  Write-Host "Creating stack for example fleet (this will take some time, up to 40 minutes)..."
   aws cloudformation --region $Config.Settings.AccountSettings.Region create-stack --stack-name GameliftExampleResources `
       --template-body file://gamelift.yaml `
       --parameters ParameterKey=BuildId,ParameterValue=$buildid ParameterKey=SecondaryLocation,ParameterValue=$secondaryregion `
@@ -40,7 +40,7 @@ if ($null -eq $stackstatus) {
   aws cloudformation --region $Config.Settings.AccountSettings.Region wait stack-create-complete --stack-name GameliftExampleResources
   Write-Host "Done creating stack!"
 } else {
-  Write-Host "Updating stack for example fleet (this will take some time)..."
+  Write-Host "Updating stack for example fleet (this will take some time, up to 40 minutes)..."
   aws cloudformation --region $Config.Settings.AccountSettings.Region update-stack --stack-name GameliftExampleResources `
      --template-body file://gamelift.yaml `
      --parameters ParameterKey=BuildId,ParameterValue=$buildid ParameterKey=SecondaryLocation,ParameterValue=$secondaryregion `

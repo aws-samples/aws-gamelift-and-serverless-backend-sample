@@ -91,7 +91,7 @@ The architecture diagram introduced here focuses on the GameLift resources of th
         * Select *"File -> Build Settings"*
         * Switch the platform to Dedicated Server and select Linux
         * Build to the *LinuxServerBuild* folder with the **exact** name *GameLiftExampleServer*
-    * gGo to *FleetDeployment* folder in Powershell and run the script `deployBuildAndUpdateGameLiftResources.ps1` to deploy the build and GameLift resources.
+    * Go to *FleetDeployment* folder in Powershell and run the script `deployBuildAndUpdateGameLiftResources.ps1` to deploy the build and GameLift resources.
     * This will take some time (up to 40 minutes) as the fleet instance AMI will be built and all the GameLift resources deployed. You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
     * **NOTE:** Make sure you let the script run through after the Fleet deployment, as it will configure the scaling for the Fleet locations with the AWS CLI
 

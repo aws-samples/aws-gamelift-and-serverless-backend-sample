@@ -28,17 +28,17 @@ The architecture diagram introduced here focuses on the GameLift resources of th
 
 1. **Install Unity3D 2019 or Unity 2020**
     * Use the instructions on Unity website for installing: [Unity Hub Installation](https://unity.com/download)
-    * Make sure to install the **Linux build target** for server builds, and your local build target (MacOS or Windows) for local client builds. In Unity Hub, go to *Installs*, select *Add Modules* from the configuration menu and add both Linux Build Support options and your local platform (Windows/Mac).
+    * Make sure to install the **Linux build support** for server builds, and your **local build support** (MacOS or Windows) for local client builds. In Unity Hub, go to *Installs*, select *Add Modules* from the configuration menu and add both Linux Build Support (Mono), and your local platform (Windows/Mac).
     * **Don't open the Unity project yet** as we still need to download and build dependencies!
 2. **Install Build Tools**
     * **MacOS**:
       * Go to [Mono Project Download Page](https://www.mono-project.com/download/stable/) and follow the instructions for installing
       * Mono will come with the build tools needed in the next step
     * **Windows**:
-      * [Download Visual Studio 2022 Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe), select "Dotnet Desktop Build Tools" and install. This should install 4.7.2 framework by default (needed for the GameLift Server SDK build). Please check it is included (If not, you can add it separately afterward by modifying the installation)
-      * Add the bin path to your PATH in environment variables (for example *C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin*)
-      * [Download nuget](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) to the root of this repository
-      * **Restart Powershell**
+      * [Download Visual Studio 2022 Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe), run the installer, select *".NET Desktop Build Tools"* and install. This should install 4.7.2 framework by default (needed for the GameLift Server SDK build). Please check it is included (If not, you can add it separately afterward by modifying the installation)
+      * Add the bin path of the MSBuild installation to your **PATH in environment variables** (for example *C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin*)
+      * [Download nuget](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and copy it **to the root** of this repository. The next script will use this to restore the GameLift Server SDK dependency packages.
+      * **Restart Powershell and navigate back to the repository folder**
 2. **Install external dependencies**
     * **MacOS**:
         * **Run the script `./downloadAndSetupUnityDependencies.sh` in your terminal**

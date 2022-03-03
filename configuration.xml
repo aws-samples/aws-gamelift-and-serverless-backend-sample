@@ -3,7 +3,7 @@
 	<AccountSettings>
 		<!--The Account and Region where we will deploy-->
 		<Region>us-east-1</Region>
-		<SecondaryRegion>eu-west-1</SecondaryRegion>
+		<SecondaryRegion>us-west-2</SecondaryRegion>
 	</AccountSettings>
 	<S3Settings>
 		<!--A Unique name for the bucket used for backend deployments-->

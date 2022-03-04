@@ -57,7 +57,7 @@ The architecture diagram introduced here focuses on the GameLift resources of th
 
 1. **Set the API endpoint and the Cognito Identity Pool to the Unity Project**
     * Open the game scene `Scenes/GameWorld` in Unity, select the GameObject `Client` and open *Inspector*
-    * Set the value of `Api Endpoint` to the endpoint created by the backend deployment. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
+    * Set the value of `Api Endpoint` to the endpoint created by the backend deployment. You can find this endpoint from the `GameLiftExampleServerlessGameBackend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `Identity Pool ID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2 of the backend deployment.
     * Set the value of `Region String` to the value of your selected region. Set the value of `Secondary Location Region String` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
 2. **Build the server build and deploy the build and the GameLift resources**
@@ -78,7 +78,7 @@ The architecture diagram introduced here focuses on the GameLift resources of th
 
 1. **Set the API endpoint and the Cognito Identity Pool to the Unity Project**
     * Open the game scene `Scenes/GameWorld` in Unity, select the GameObject `Client` and open Inspector
-    * Set the value of `Api Endpoint` to the endpoint created by the backend deployment. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
+    * Set the value of `Api Endpoint` to the endpoint created by the backend deployment. You can find this endpoint from the `GameLiftExampleServerlessGameBackend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `Identity Pool ID` to the identity pool created by the Pre-Requirements deployment. You can also find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2 of the backend deployment.
     * Set the value of `Region String` to the value of your selected region. Set the value of `Secondary Location Region String` to your selected secondary region for the Fleet. The sessions are then placed based on client latency.
 2. **Build the server build and deploy the build and the GameLift resources**

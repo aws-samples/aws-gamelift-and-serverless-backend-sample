@@ -65,7 +65,7 @@ The backend deployment steps 1-3 are here for convenience, you might have done t
     * **NOTE**: This is **not** the file in the LinuxServerBuild folder in the root which is used by the Unity version of the example!
 4. **Set the API endpoint and the Cognito Identity Pool in the Client Project** (`CppServerAndClient/Client/Client.h`)
     * Open the file CppServerAndClient/Client/Client.h in the Cloud9 editor
-    * Set the value of `String backendApiUrl` to the endpoint created by the backend deployment. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
+    * Set the value of `String backendApiUrl` to the endpoint created by the backend deployment. You can find this endpoint from the `GameLiftExampleServerlessGameBackend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `String identityPoolId` to the identity pool created by the Pre-Requirements deployment. You can find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2.
     * Set the values of `const char* REGION` and `String regionString` to the applicable values of your selected main region. Set the value of `String secondaryRegionString` to a GameLift supported Location region. These two regions will be used based on the latencies provided by the clients to the matchmaking.
 5. **Download, Build and setup the GameLift C++ Server SDK**
@@ -141,7 +141,7 @@ To delete the resources created in the example, go to **CloudFormation console**
 
 1. GameliftExampleResources
 2. GameLiftExamplePreRequirements
-3. gameservice-backend
+3. GameLiftExampleServerlessGameBackend
 
 In addition you can empty and delete the the bucket that contains the deployment assets for SAM:
 

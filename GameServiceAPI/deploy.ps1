@@ -16,4 +16,4 @@ if ($Config.Settings.AccountSettings.Region -eq "us-east-1") {
 # Build, package and deploy the backend
 sam build
 sam package --s3-bucket $Config.Settings.S3Settings.DeploymentBucketName --output-template-file gameservice.yaml --region $Config.Settings.AccountSettings.Region
-sam deploy --template-file gameservice.yaml --region $Config.Settings.AccountSettings.Region --capabilities CAPABILITY_IAM --stack-name gameservice-backend
+sam deploy --template-file gameservice.yaml --region $Config.Settings.AccountSettings.Region --capabilities CAPABILITY_IAM --stack-name GameLiftExampleServerlessGameBackend

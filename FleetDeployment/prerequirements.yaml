@@ -9,7 +9,7 @@ Parameters:
   BackendServicesStackName:
     Description: CloudFormation stack containing the Backend Services
     Type: String
-    Default: gameservice-backend
+    Default: GameLiftExampleServerlessGameBackend
 
 Resources:
 

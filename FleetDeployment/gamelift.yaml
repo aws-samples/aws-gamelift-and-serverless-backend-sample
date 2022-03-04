@@ -15,7 +15,7 @@ Parameters:
     Description: The name of the stack that defines the role for the gamelift instances
   BackendStackName:
     Type: String
-    Default: gameservice-backend
+    Default: GameLiftExampleServerlessGameBackend
     Description: The name of the stack for the backend
   SecondaryLocation:
     Type: String

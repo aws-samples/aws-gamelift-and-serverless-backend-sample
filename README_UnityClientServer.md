@@ -12,7 +12,7 @@
     + [Game Client](#game-client)
   * [License](#license)
 
-This Readme contains the details for the Unity-based game server and client and deploying all the GameLift resources. See the [main README](../README.md) for details on the backend architecture. **NOTE:** The backend has to be deployed before progressing with the deployment instructions here.
+This Readme contains the details for the Unity-based game server and client and deploying all the GameLift resources. See the [main README](README.md) for details on the backend architecture. **NOTE:** The backend has to be deployed before progressing with the deployment instructions here.
 
 **Note**: _“The sample code; software libraries; command line tools; proofs of concept; templates; or other related technology (including any of the foregoing that are provided by our personnel) is provided to you as AWS Content under the AWS Customer Agreement, or the relevant written agreement between you and AWS (whichever applies). You should not use this AWS Content in your production accounts, or on production or other critical data. You are responsible for testing, securing, and optimizing the AWS Content, such as sample code, as appropriate for production grade use based on your specific quality control practices and standards. Deploying AWS Content may incur AWS charges for creating or using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.”_
 
@@ -110,6 +110,10 @@ To test the setup end to end, run two clients that will connect to the same game
 * Open the scene *"GameWorld"* in the folder Scenes/
 * You can run two clients by running one in the Unity Editor and one with the created build. This way the clients will get different Cognito identities for matchmaking to work.
 * The matchmaking rule set will allow one client in and uses automatic backfilling for other clients after that up to a maximum of 5. It will also consider the latency of the clients against the two different regions.
+
+### Optional, bots for load testing
+
+See [UnityBotClient README](UnityBotClient/README.md) for details on how to run test client bots on AWS Fargate. The scripts are currently available for bash only.
 
 # Implementation Overview
 

@@ -35,9 +35,16 @@ public class NetworkProtocol
 
     public static void Send(TcpClient client, SimpleMessage message)
     {
-        if (client == null) return;
-        NetworkStream stream = client.GetStream();
-        BinaryFormatter formatter = new BinaryFormatter();
-        formatter.Serialize(stream, message);
+        try
+        {
+            if (client == null) return;
+            NetworkStream stream = client.GetStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, message);
+        }
+        catch (Exception e)
+        {
+            System.Console.WriteLine("Error sending data: " + e.Message);
+        }
     }
 }

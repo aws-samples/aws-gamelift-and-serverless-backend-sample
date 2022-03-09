@@ -24,12 +24,20 @@ public class Client : MonoBehaviour
     private bool gameStartRequested = false;
     public Button restartButton;
 
-    // NOTE: Don't edit these here as they are overwritten by values in the Client GameObject, set in Inspector instead
+    // NOTE: DON'T EDIT THESE HERE, as they are overwritten by values in the Client GameObject. Set in Inspector instead
     public string apiEndpoint = "https://<YOUR-API-ENDPOINT./Prod/";
     public string identityPoolID = "<YOUR-IDENTITY-POOL-ID>";
     public string regionString = "us-east-1";
     public string secondaryLocationRegionString = "us-west-2";
     public Amazon.RegionEndpoint region = Amazon.RegionEndpoint.USEast1; // This will be automatically set based on regionString
+
+    // Used in the Bot builds
+#if BOTCLIENT
+    private int botMovementChangeCount = 0;
+    private float currentBotMovementX = 0;
+    private float currentBotMovementZ = 0;
+    private float botSessionTimer = 60.0f; // seconds value for running a bot session before restarting
+#endif
 
 #if CLIENT
 
@@ -134,7 +142,7 @@ public class Client : MonoBehaviour
     }
 
     // Called when restart button is clicked
-    void Restart()
+    public void Restart()
     {
         this.networkClient.Disconnect();
         SceneManager.LoadScene(0);
@@ -145,6 +153,12 @@ public class Client : MonoBehaviour
     {
         this.startGameButton.onClick.AddListener(StartGame);
         this.restartButton.onClick.AddListener(Restart);
+
+#if BOTCLIENT
+        // Bots will start automatically
+        System.Console.WriteLine("BOT: Start connecting immediately");
+        this.StartGame();
+#endif
     }
 
     // Called when Start game button is clicked
@@ -167,6 +181,7 @@ public class Client : MonoBehaviour
                 this.region);
             Client.cognitoCredentials = credentials.GetCredentials();
             Debug.Log("Got credentials: " + Client.cognitoCredentials.AccessKey + "," + Client.cognitoCredentials.SecretKey);
+            Debug.Log("Got Cognito ID: " + credentials.GetIdentityId());
 
             // Get latencies to regions
             this.MeasureLatencies();
@@ -180,6 +195,10 @@ public class Client : MonoBehaviour
     {
         if (this.localPlayer != null)
         {
+#if BOTCLIENT
+            this.BotUpdate();
+#endif
+
             // Process any messages we have received over the network
             this.ProcessMessages();
 
@@ -197,6 +216,18 @@ public class Client : MonoBehaviour
             // Receive new messages
             this.networkClient.Update();
         }
+    }
+
+    private void BotUpdate()
+    {
+#if BOTCLIENT
+        this.botSessionTimer -= Time.deltaTime;
+        if (this.botSessionTimer <= 0.0f)
+        {
+            System.Console.WriteLine("BOT: Restarting session.");
+            this.Restart();
+        }
+#endif
     }
 
     // Do matchmaking and connect to the server endpoint received
@@ -243,18 +274,18 @@ public class Client : MonoBehaviour
             {
                 if (msg.messageType == MessageType.Spawn && this.EnemyPlayerExists(msg.clientId) == false)
                 {
-                    Debug.Log("Enemy spawned: " + msg.float1 + "," + msg.float2 + "," + msg.float3 + " ID: " + msg.clientId);
+                    //Debug.Log("Enemy spawned: " + msg.float1 + "," + msg.float2 + "," + msg.float3 + " ID: " + msg.clientId);
                     NetworkPlayer enemyPlayer = new NetworkPlayer(msg.clientId);
                     this.enemyPlayers.Add(enemyPlayer);
                     enemyPlayer.Spawn(msg, this.enemyPrefab);
                 }
                 else if (msg.messageType == MessageType.Position && justLeftClients.Contains(msg.clientId) == false)
                 {
-                    Debug.Log("Enemy pos received: " + msg.float1 + "," + msg.float2 + "," + msg.float3);
+                    //Debug.Log("Enemy pos received: " + msg.float1 + "," + msg.float2 + "," + msg.float3);
                     //Setup enemycharacter if not done yet
                     if (this.EnemyPlayerExists(msg.clientId) == false)
                     {
-                        Debug.Log("Creating new with ID: " + msg.clientId);
+                        Debug.Log("Creating new enemy with ID: " + msg.clientId);
                         NetworkPlayer newPlayer = new NetworkPlayer(msg.clientId);
                         this.enemyPlayers.Add(newPlayer);
                         newPlayer.Spawn(msg, this.enemyPrefab);
@@ -272,7 +303,7 @@ public class Client : MonoBehaviour
                     NetworkPlayer enemyPlayer = this.GetEnemyPlayer(msg.clientId);
                     if (enemyPlayer != null)
                     {
-                        Debug.Log("Found enemy player");
+                        //Debug.Log("Found enemy player");
                         enemyPlayer.DeleteGameObject();
                         this.enemyPlayers.Remove(enemyPlayer);
                         justLeftClients.Add(msg.clientId);
@@ -294,12 +325,28 @@ public class Client : MonoBehaviour
 
     void SendMove()
     {
-        // Send position if changed
+        // Get movement input
         var newPosMessage = this.localPlayer.GetMoveMessage();
+
+        // Bots will have randomized movement that slowly changes
+#if BOTCLIENT
+        if(this.botMovementChangeCount <= 0)
+        {
+            this.currentBotMovementX = UnityEngine.Random.Range(-1.0f, 1.0f);
+            this.currentBotMovementZ = UnityEngine.Random.Range(-1.0f, 1.0f);
+            this.botMovementChangeCount = 30;
+        }
+        this.botMovementChangeCount -= 1;
+
+        newPosMessage.float1 = this.currentBotMovementX;
+        newPosMessage.float2 = this.currentBotMovementZ;
+#endif
+
+        // Send if not null
         if (newPosMessage != null)
             this.networkClient.SendMessage(newPosMessage);
     }
 
 #endif
 
-}
+    }

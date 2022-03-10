@@ -496,9 +496,6 @@ public class NetworkServer
 
         // Add to list to create the gameobject instance on the server
         Server.messagesToProcess.Add(message);
-
-        // Just testing the StatsD client
-        this.gamelift.GetStatsdClient().SendCounter("players.PlayerPositionUpdate", 1);
     }
 
     private void RemoveClient(TcpClient client)

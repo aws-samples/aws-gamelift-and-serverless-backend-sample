@@ -10,7 +10,6 @@
     + [GameLift Resources](#gamelift-resources)
     + [Game Server](#game-server)
     + [Game Client](#game-client)
-  * [Deploying Bot Clients](#deploying-bot-clients)
   * [License](#license)
 
 This Readme contains the details for the Unity-based game server and client and deploying all the GameLift resources. See the [main README](README.md) for details on the backend architecture. **NOTE:** The backend has to be deployed before progressing with the deployment instructions here.
@@ -161,10 +160,6 @@ Client uses AWS .NET SDK to request a Cognito Identity and connects to the Serve
   * `Scripts/Client/Client.cs`: This is the main class of the client that initiates the matchmaking and connects to the server. It also processes all messages received from the server and updates the associated player entities based on them. Enemy players will be spawned and removed as they join and leave and their movement will be interpolated based on the position messages received. We will also send move commands from our local player to the server here.
   * `Scripts/Client/MatchMakingClient.cs`: This is the HTTPS client to the backend service that makes the signed requests to request matchmaking and request the status of a matchmaking ticket.
   * `Scripts/Client/NetworkClient.cs`: This is the TCP Client class that manages the TCP connection to the server and sending/receiving of messages. It uses NetworkProtocol in `NetworkProtocol.cs` to serialize and deserialize messages in a binary format in the same way as the server. 
-
-# Deploying Bot Clients
-
-There is an additional component available to run Bot clients for testing on AWS Fargate. See the [Bot client Readme](UnityBotClient/README.md) for deployment details.
 
 # License
 

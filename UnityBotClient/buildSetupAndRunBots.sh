@@ -12,7 +12,7 @@ getstatusofstack() {
 }
 
 # 1. Create ECR repository if it doesn't exits
-aws ecr create-repository --repository-name gamelift-example-bot-client --region $region
+aws ecr create-repository --repository-name gamelift-example-bot-client --region $region --output text
 
 # 2. Login to ECR (AWS CLI V2)
 aws ecr get-login-password --region $region | docker login --username AWS --password-stdin $accountid.dkr.ecr.$region.amazonaws.com/gamelift-example-bot-client

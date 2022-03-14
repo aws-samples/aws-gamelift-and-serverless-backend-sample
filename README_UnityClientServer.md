@@ -72,7 +72,7 @@ The architecture diagram introduced here focuses on the GameLift resources of th
         * Build to the *LinuxServerBuild* folder with the **exact** name *GameLiftExampleServer*
     * Run the script to deploy build and GameLift resources (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)
     * This will take some time (up to 40 minutes) as the fleet instance AMI will be built and all the GameLift resources deployed. You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
-    * **NOTE:** Make sure you let the script run through after the Fleet deployment, as it will configure the scaling for the Fleet locations with the AWS CLI
+    * **NOTE:** Make sure you let the script run through after the Fleet deployment, as it will configure the scaling for the Fleet locations with the AWS CLI. The defaults are min 1 and max 1 per Region, as this is the maximum you have on a new AWS account. If you have requested limit increases, you can configure a higher maximum by modifying the deployment script.
 
 # Deployment with PowerShell Scripts
 
@@ -159,7 +159,7 @@ Client uses AWS .NET SDK to request a Cognito Identity and connects to the Serve
 **Key code files:**
   * `Scripts/Client/Client.cs`: This is the main class of the client that initiates the matchmaking and connects to the server. It also processes all messages received from the server and updates the associated player entities based on them. Enemy players will be spawned and removed as they join and leave and their movement will be interpolated based on the position messages received. We will also send move commands from our local player to the server here.
   * `Scripts/Client/MatchMakingClient.cs`: This is the HTTPS client to the backend service that makes the signed requests to request matchmaking and request the status of a matchmaking ticket.
-  * `Scripts/Client/NetworkClient.cs`: This is the TCP Client class that manages the TCP connection to the server and sending/receiving of messages. It uses NetworkProtocol in `NetworkProtocol.cs` to serialize and deserialize messages in a binary format in the same way as the server. 
+  * `Scripts/Client/NetworkClient.cs`: This is the TCP Client class that manages the TCP connection to the server and sending/receiving of messages. It uses NetworkProtocol in `NetworkProtocol.cs` to serialize and deserialize messages in a binary format in the same way as the server.
 
 # License
 

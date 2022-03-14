@@ -1,4 +1,4 @@
-# GameLift Solution for Unity and C++ with Serverless Backend
+# Multiplayer Session-based Game Hosting on AWS
 
   * [Key Features](#key-features)
   * [Contents](#contents)
@@ -10,7 +10,7 @@
     + [Serverless Backend Service](#serverless-backend-service)
   * [License](#license)
 
-This repository contains a GameLift example solution with a backend service designed for getting started with MacOS, Windows and mobile session-based multiplayer game development and leveraging deployment automation.
+This repository contains a solution for multiplayer session-based game hosting on AWS leveraging Amazon GameLift, a fully managed game server hosting solution, with a serverless backend service. The solution is designed for getting quickly started with multiplayer game development on MacOS and Windows. It includes infrastructure as code automation, as well as deployment scripts to deploy all the required resources, and supports Unity and custom C++ engines.
 
 This Readme includes the architecture overview, as well as deployment instructions and documentation for the serverless backend services of the solution. You can then branch out to the Unity and C++ specific Readmes ([Unity deployment README](README_UnityClientServer.md) or [C++ deployment README](CppServerAndClient/README.md)) as needed for the game client, game server setup and GameLift resources setup.
 
@@ -18,14 +18,16 @@ This Readme includes the architecture overview, as well as deployment instructio
 
 # Key Features
 * Uses CloudFormation to automate the deployment of all resources
-* Uses a Serverless API built with Serverless Application Model to initiate matchmaking 
+* Uses Serverless APIs built with Serverless Application Model for backend functionalities such as matchmaking requests
 * Leverages FlexMatch latency-based matchmaking
-* Runs on Amazon Linux 2 on the GameLift service in two Regional locations
-* Uses Cognito Identity Pools to store user identities and authenticate them against the backend
+* Runs on Amazon Linux 2 on the GameLift service in two regional locations
+* Uses Cognito Identity Pools to store user identities and authenticate the users against the backend
 * Deployed with shell (MacOS) or PowerShell (Windows) scripts
-* Includes configuration to push custom logs and metrics to CloudWatch with CloudWatch Agent, as well as CloudWatch Dashboards for both the backend and GameLift resources
+* Includes configuration to push custom logs and metrics to CloudWatch with CloudWatch Agent
+* Includes automated CloudWatch Dashboards for both the backend and game server resources
 * Client works on multiple platforms including mobile
-* Uses Unity engine or C++ for server and client
+* Provides Unity and C++ example implementations for client and server
+* Provides a serverless bot client load testing option for the Unity deployment by leveraging AWS Fargate
 
 The project is a simple "game" where 1-5 players join the same session and move around with their 3D characters. The movement inputs are sent to the server which runs the game simulation on a headless Unity process and syncs state back to all players. The C++ implementation focuses on the integrations only and doesn't run simulation for the client and server.
 
@@ -37,6 +39,7 @@ The project contains:
 * **A build folder for the server build** which includes a set of pre-required files for configuration and where you will build your Linux server build from Unity or C++ (`LinuxServerBuild`)
 * **A Unity version of the game server and client** (`GameLiftExampleUnityProject`)
 * **A C++ version of the game server and client** (`CppServerAndClient`)
+* **Unity bot client infrastructure implementation** (`UnityBotClient`)
 
 # Architecture Diagram
 

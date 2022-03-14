@@ -132,9 +132,11 @@ Resources:
             LaunchPath: /local/game/GameLiftExampleServer.x86_64
             Parameters: -logFile /local/game/logs/myserver7777.log -port 7777
       EC2InstanceType: "c5.large"
-      #Create TLS certificate for optional encrypted client-server traffic
+      #Create TLS certificate for optional encrypted client-server traffic (not implemented in the example server)
       CertificateConfiguration:
         CertificateType: GENERATED
+      #Set termination protection on to protect running game sessions from being terminated (you can set this to NoProtection for dev fleets) 
+      NewGameSessionProtectionPolicy: FullProtection
       InstanceRoleARN:
         Fn::ImportValue:
           !Sub "${PreRequirementsStackName}-InstanceRole"

@@ -7,8 +7,9 @@ if (-not (Test-Path -Path "$PsScriptRoot\..\configuration.xml")) {
 }
 
 # Configuration for the scaling of the Fleet locations
+# Set the max size to higher if you have requested a limit increase for your AWS account for instances
 $minsize = 1
-$maxsize = 2
+$maxsize = 1
 $desired = 1
 # available game sessions as percentage
 $availablesessions = 20

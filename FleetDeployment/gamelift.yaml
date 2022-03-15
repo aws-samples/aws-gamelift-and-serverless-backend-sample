@@ -54,13 +54,13 @@ Resources:
               "name": "FastConnection",
               "description": "Prefer matches with fast player connections first",
               "type": "latency",
-              "maxLatency": 50
+              "maxLatency": 80
             }],
             "expansions": [{
                   "target": "rules[FastConnection].maxLatency",
                   "steps": [{
-                      "waitTimeSeconds": 10,
-                      "value": 200
+                      "waitTimeSeconds": 5,
+                      "value": 250
                 }]
             }]
         }

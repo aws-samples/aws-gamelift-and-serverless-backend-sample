@@ -60,7 +60,7 @@ Resources:
                   "target": "rules[FastConnection].maxLatency",
                   "steps": [{
                       "waitTimeSeconds": 5,
-                      "value": 250
+                      "value": 1000
                 }]
             }]
         }

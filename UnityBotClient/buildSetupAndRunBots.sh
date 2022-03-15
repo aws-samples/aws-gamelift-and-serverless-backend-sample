@@ -11,7 +11,13 @@ getstatusofstack() {
 	aws cloudformation describe-stacks --region $region --stack-name $1 --query Stacks[].StackStatus --output text 2>/dev/null
 }
 
+# 0. Try to create the ECS Service linked role, if it doesn't exist already
+echo "Create service linked role. Ignore errors, this might exist already."
+aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com --region $region
+
 # 1. Create ECR repository if it doesn't exits
+echo "************"
+echo "Create ECR repository. Ignore errors, this might exist already."
 aws ecr create-repository --repository-name gamelift-example-bot-client --region $region --output text
 
 # 2. Login to ECR (AWS CLI V2)
@@ -24,6 +30,8 @@ docker build ./Build/ -t $accountid.dkr.ecr.$region.amazonaws.com/gamelift-examp
 
 # 4. Push the image to ECR
 docker push $accountid.dkr.ecr.$region.amazonaws.com/gamelift-example-bot-client:$build_id
+
+echo "************"
 
 # 5. Deploy an updated task definition with the new image
 stackstatus=$(getstatusofstack gamelift-example-bot-resources)

@@ -275,7 +275,7 @@ public class NetworkServer
                 var messages = NetworkProtocol.Receive(tcpClient);
                 foreach(SimpleMessage message in messages)
                 {
-                    System.Console.WriteLine("Received message: " + message.message + " type: " + message.messageType);
+                    //System.Console.WriteLine("Received message: " + message.message + " type: " + message.messageType);
                     bool disconnect = HandleMessage(playerIdx, tcpClient, message);
                     if (disconnect)
                         this.clientsToRemove.Add(tcpClient);

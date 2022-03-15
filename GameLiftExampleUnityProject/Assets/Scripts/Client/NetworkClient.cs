@@ -139,6 +139,10 @@ public class NetworkClient
 		{
 			Debug.Log("Failed to connect to server");
 			GameObject.FindObjectOfType<UIManager>().SetTextBox("Connection to server failed.");
+
+			// Restart the client
+			var clientObject = GameObject.FindObjectOfType<Client>();
+			clientObject.Restart();
 		}
 		else
 		{

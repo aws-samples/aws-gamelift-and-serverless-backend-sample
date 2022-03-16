@@ -1,0 +1,198 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: A stack for deploying the task definition to be used by the GameLift example client bots
+
+Parameters:
+  Image: 
+    Type: String
+    Description: The url of the image to be used in the Task definition
+  TaskCount: 
+    Type: Number
+    Description: The number of tasks to run (each will have 4 bots in them)
+
+Resources:
+
+  # Define the VPC
+  BotClientVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+
+  # Two public subnets, where containers can have public IP addresses
+  PublicSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+         Fn::Select:
+         - 0
+         - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref BotClientVPC
+      CidrBlock: 10.0.0.0/22
+      MapPublicIpOnLaunch: true
+  PublicSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+         Fn::Select:
+         - 1
+         - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref BotClientVPC
+      CidrBlock: 10.0.4.0/22
+      MapPublicIpOnLaunch: true
+
+  # Setup networking resources for the public subnets. Containers
+  # in the public subnets have public IP addresses and the routing table
+  # sends network traffic via the internet gateway.
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  GatewayAttachement:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref BotClientVPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref BotClientVPC
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachement
+    Properties:
+      RouteTableId: !Ref 'PublicRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref 'InternetGateway'
+  PublicSubnetOneRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetOne
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetTwoRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetTwo
+      RouteTableId: !Ref PublicRouteTable
+
+
+  # ECS cluster to host the Fargate Tasks
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: GameLiftSampleBotFargateCluster
+      CapacityProviders:
+        - FARGATE
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+
+  # This is a role which is used by the ECS tasks.
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: / 
+      Policies:
+        - PolicyName: AmazonECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+
+  BotClientsLogGroup: 
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      RetentionInDays: 7
+      LogGroupName: "gamelift-example-bot-clients"
+
+  BotClientTaskDefinition: 
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      RequiresCompatibilities:
+        - "FARGATE"
+      NetworkMode: awsvpc
+      Cpu: 512
+      Memory: 1024
+      ExecutionRoleArn:
+        !Ref ECSTaskExecutionRole
+      # 4 bot clients per Task
+      ContainerDefinitions: 
+        - 
+          Name: "BotClient1"
+          Image: !Ref Image
+          Cpu: 128
+          Memory: 256
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              "awslogs-group": "gamelift-example-bot-clients"
+              "awslogs-region": !Ref AWS::Region
+              "awslogs-stream-prefix": "gamelift-example"
+        - 
+          Name: "BotClient2"
+          Image: !Ref Image
+          Cpu: 128
+          Memory: 256
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              "awslogs-group": "gamelift-example-bot-clients"
+              "awslogs-region": !Ref AWS::Region
+              "awslogs-stream-prefix": "gamelift-example"
+        - 
+          Name: "BotClient3"
+          Image: !Ref Image
+          Cpu: 128
+          Memory: 256
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              "awslogs-group": "gamelift-example-bot-clients"
+              "awslogs-region": !Ref AWS::Region
+              "awslogs-stream-prefix": "gamelift-example"
+        - 
+          Name: "BotClient4"
+          Image: !Ref Image
+          Cpu: 128
+          Memory: 256
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              "awslogs-group": "gamelift-example-bot-clients"
+              "awslogs-region": !Ref AWS::Region
+              "awslogs-stream-prefix": "gamelift-example"
+
+  ECSService: 
+    Type: AWS::ECS::Service
+    Properties: 
+      Cluster: 
+        Ref: ECSCluster
+      DesiredCount: !Ref TaskCount
+      TaskDefinition: 
+        Ref: BotClientTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+          - !Ref PublicSubnetOne
+          - !Ref PublicSubnetTwo
+
+Outputs:
+  TaskDefinition:
+    Description: The created Task Definition
+    Value: !Ref BotClientTaskDefinition
+

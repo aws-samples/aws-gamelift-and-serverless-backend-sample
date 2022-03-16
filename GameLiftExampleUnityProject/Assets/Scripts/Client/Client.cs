@@ -8,6 +8,9 @@ using Amazon.CognitoIdentity;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using Amazon.CognitoIdentity.Model;
 
 // *** MAIN CLIENT CLASS FOR MANAGING CLIENT CONNECTIONS AND MESSAGES ***
 
@@ -16,6 +19,26 @@ public class Client : MonoBehaviour
     // Prefabs for the player and enemy objects referenced from the scene object
     public GameObject characterPrefab;
 	public GameObject enemyPrefab;
+
+    // Reference to the Start Game  and restart Buttons
+    public Button startGameButton;
+    private bool gameStartRequested = false;
+    public Button restartButton;
+
+    // NOTE: DON'T EDIT THESE HERE, as they are overwritten by values in the Client GameObject. Set in Inspector instead
+    public string apiEndpoint = "https://<YOUR-API-ENDPOINT./Prod/";
+    public string identityPoolID = "<YOUR-IDENTITY-POOL-ID>";
+    public string regionString = "us-east-1";
+    public string secondaryLocationRegionString = "us-west-2";
+    public Amazon.RegionEndpoint region = Amazon.RegionEndpoint.USEast1; // This will be automatically set based on regionString
+
+    // Used in the Bot builds
+#if BOTCLIENT
+    private int botMovementChangeCount = 0;
+    private float currentBotMovementX = 0;
+    private float currentBotMovementZ = 0;
+    private float botSessionTimer = 60.0f; // seconds value for running a bot session before restarting
+#endif
 
 #if CLIENT
 
@@ -36,6 +59,7 @@ public class Client : MonoBehaviour
 
     //Cognito credentials for sending signed requests to the API
     public static Amazon.Runtime.ImmutableCredentials cognitoCredentials = null;
+    public static string cognitoID = null;
 
     // Helper function check if an enemy exists in the enemy list already
     private bool EnemyPlayerExists(int clientId)
@@ -105,8 +129,8 @@ public class Client : MonoBehaviour
     void MeasureLatencies()
     {
         // We'll ping the two Regions we are using, you can extend to any amount
-        var region1 = MatchmakingClient.regionString;
-        var region2 = MatchmakingClient.secondaryLocationRegionString;
+        var region1 = this.regionString;
+        var region2 = this.secondaryLocationRegionString;
 
         // Check latencies to Regions by pinging DynamoDB endpoints (they just report health but we use them here for latency)
         var response = Task.Run(() => this.SendHTTPSPingRequest("https://dynamodb."+ region1 + ".amazonaws.com"));
@@ -119,22 +143,82 @@ public class Client : MonoBehaviour
         this.latencies.Add(region2, response.Result);
     }
 
+    // Called when restart button is clicked
+    public void Restart()
+    {
+        this.networkClient.Disconnect();
+        SceneManager.LoadScene(0);
+    }
+
     // Called by Unity when the Gameobject is created
     void Start()
     {
-        FindObjectOfType<UIManager>().SetTextBox("Setting up Client..");
+        this.startGameButton.onClick.AddListener(StartGame);
+        this.restartButton.onClick.AddListener(Restart);
 
-        // Get an identity and connect to server
-        CognitoAWSCredentials credentials = new CognitoAWSCredentials(
-            MatchmakingClient.identityPoolID,
-            MatchmakingClient.region);
-        Client.cognitoCredentials = credentials.GetCredentials();
-        Debug.Log("Got credentials: " + Client.cognitoCredentials.AccessKey + "," + Client.cognitoCredentials.SecretKey);
+#if BOTCLIENT
+        // Bots will start automatically
+        System.Console.WriteLine("BOT: Start connecting immediately");
+        this.StartGame();
+#endif
+    }
 
-        // Get latencies to regions
-        this.MeasureLatencies();
+    // Called when Start game button is clicked
+    void StartGame()
+    {
+        if (!this.gameStartRequested)
+        {
+            this.startGameButton.gameObject.SetActive(false);
+            this.gameStartRequested = true;
 
-        StartCoroutine(ConnectToServer());
+            FindObjectOfType<UIManager>().SetTextBox("Setting up Client..");
+
+            // Get the Region enum from the string value
+            this.region = Amazon.RegionEndpoint.GetBySystemName(regionString);
+            Debug.Log("My Region endpoint: " + this.region);
+
+            // Check if we have stored an identity and request credentials for that existing identity
+            Client.cognitoID = PlayerPrefs.GetString("CognitoID", null);
+            if (Client.cognitoID != null && Client.cognitoID != "")
+            {
+                Debug.Log("Requesting credentials for existing identity: " + Client.cognitoID);
+                var response = Task.Run(() => GetCredentialsForExistingIdentity(Client.cognitoID));
+                response.Wait(5000);
+                Client.cognitoID = response.Result.IdentityId;
+                Client.cognitoCredentials = new Amazon.Runtime.ImmutableCredentials(response.Result.Credentials.AccessKeyId, response.Result.Credentials.SecretKey, response.Result.Credentials.SessionToken);
+            }
+            // Else get a new identity
+            else
+            {
+                Debug.Log("Requesting a new playeridentity as none stored yet.");
+                CognitoAWSCredentials credentials = new CognitoAWSCredentials(
+                    this.identityPoolID,
+                    this.region);
+                Client.cognitoCredentials = credentials.GetCredentials();
+                Client.cognitoID = credentials.GetIdentityId();
+                Debug.Log("Got Cognito ID: " + credentials.GetIdentityId());
+
+                // Store to player prefs and save for future games
+                PlayerPrefs.SetString("CognitoID", Client.cognitoID);
+                PlayerPrefs.Save();
+            }
+
+            // Get latencies to regions
+            this.MeasureLatencies();
+
+            // Connect to the server now that we have our identity, credendtials and latencies
+            StartCoroutine(ConnectToServer());
+        }
+        
+    }
+
+    // Retrieves credentials for existing identities
+    async Task<GetCredentialsForIdentityResponse> GetCredentialsForExistingIdentity(string identity)
+    {
+        // As this is a public API, we call it with fake access keys
+        AmazonCognitoIdentityClient cognitoClient = new AmazonCognitoIdentityClient("A","B",this.region);
+        var resp = await cognitoClient.GetCredentialsForIdentityAsync(identity);
+        return resp;
     }
 
     // Update is called once per frame
@@ -142,6 +226,10 @@ public class Client : MonoBehaviour
     {
         if (this.localPlayer != null)
         {
+#if BOTCLIENT
+            this.BotUpdate();
+#endif
+
             // Process any messages we have received over the network
             this.ProcessMessages();
 
@@ -159,6 +247,18 @@ public class Client : MonoBehaviour
             // Receive new messages
             this.networkClient.Update();
         }
+    }
+
+    private void BotUpdate()
+    {
+#if BOTCLIENT
+        this.botSessionTimer -= Time.deltaTime;
+        if (this.botSessionTimer <= 0.0f)
+        {
+            System.Console.WriteLine("BOT: Restarting session.");
+            this.Restart();
+        }
+#endif
     }
 
     // Do matchmaking and connect to the server endpoint received
@@ -205,18 +305,18 @@ public class Client : MonoBehaviour
             {
                 if (msg.messageType == MessageType.Spawn && this.EnemyPlayerExists(msg.clientId) == false)
                 {
-                    Debug.Log("Enemy spawned: " + msg.float1 + "," + msg.float2 + "," + msg.float3 + " ID: " + msg.clientId);
+                    //Debug.Log("Enemy spawned: " + msg.float1 + "," + msg.float2 + "," + msg.float3 + " ID: " + msg.clientId);
                     NetworkPlayer enemyPlayer = new NetworkPlayer(msg.clientId);
                     this.enemyPlayers.Add(enemyPlayer);
                     enemyPlayer.Spawn(msg, this.enemyPrefab);
                 }
                 else if (msg.messageType == MessageType.Position && justLeftClients.Contains(msg.clientId) == false)
                 {
-                    Debug.Log("Enemy pos received: " + msg.float1 + "," + msg.float2 + "," + msg.float3);
+                    //Debug.Log("Enemy pos received: " + msg.float1 + "," + msg.float2 + "," + msg.float3);
                     //Setup enemycharacter if not done yet
                     if (this.EnemyPlayerExists(msg.clientId) == false)
                     {
-                        Debug.Log("Creating new with ID: " + msg.clientId);
+                        Debug.Log("Creating new enemy with ID: " + msg.clientId);
                         NetworkPlayer newPlayer = new NetworkPlayer(msg.clientId);
                         this.enemyPlayers.Add(newPlayer);
                         newPlayer.Spawn(msg, this.enemyPrefab);
@@ -234,7 +334,7 @@ public class Client : MonoBehaviour
                     NetworkPlayer enemyPlayer = this.GetEnemyPlayer(msg.clientId);
                     if (enemyPlayer != null)
                     {
-                        Debug.Log("Found enemy player");
+                        //Debug.Log("Found enemy player");
                         enemyPlayer.DeleteGameObject();
                         this.enemyPlayers.Remove(enemyPlayer);
                         justLeftClients.Add(msg.clientId);
@@ -256,12 +356,28 @@ public class Client : MonoBehaviour
 
     void SendMove()
     {
-        // Send position if changed
+        // Get movement input
         var newPosMessage = this.localPlayer.GetMoveMessage();
+
+        // Bots will have randomized movement that slowly changes
+#if BOTCLIENT
+        if(this.botMovementChangeCount <= 0)
+        {
+            this.currentBotMovementX = UnityEngine.Random.Range(-1.0f, 1.0f);
+            this.currentBotMovementZ = UnityEngine.Random.Range(-1.0f, 1.0f);
+            this.botMovementChangeCount = 30;
+        }
+        this.botMovementChangeCount -= 1;
+
+        newPosMessage.float1 = this.currentBotMovementX;
+        newPosMessage.float2 = this.currentBotMovementZ;
+#endif
+
+        // Send if not null
         if (newPosMessage != null)
             this.networkClient.SendMessage(newPosMessage);
     }
 
 #endif
 
-}
+    }

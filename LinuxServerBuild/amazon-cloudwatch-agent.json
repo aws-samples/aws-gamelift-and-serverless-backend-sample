@@ -3,7 +3,7 @@
       "metrics_collection_interval": 10,
       "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
       "credentials": {
-          "role_arn": "arn:aws:iam::<YOURACCOUNT>:role/<YOURINSTANCEROLE>"
+        "role_arn": "arn:aws:iam::<YOURACCOUNT>:role/<YOURINSTANCEROLE>"
       }
     },
     "metrics":{
@@ -17,25 +17,15 @@
             {
                 "pattern": "-port 1935",
                 "measurement": [
-                    "cpu_time",
                     "cpu_usage",
-                    "read_bytes",
-                    "write_bytes",
-                    "memory_data",
-                    "memory_rss",
-                    "memory_vms"
+                    "memory_rss"
                 ]
             },
             {
               "pattern": "-port 7777",
               "measurement": [
-                  "cpu_time",
                   "cpu_usage",
-                  "read_bytes",
-                  "write_bytes",
-                  "memory_data",
-                  "memory_rss",
-                  "memory_vms"
+                  "memory_rss"
               ]
           }
           ]

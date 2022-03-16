@@ -1,6 +1,6 @@
-# GameLift Example with Serverless Backend: C++ Version (Server and Client)
+# GameLift Example with Serverless Backend: C++ Version Server and Client
 
-This subfolder contains the additional files for a C++ -based game server and client. All of the backend architecture, features and templates are used as they are from the main folder. You can refer to the [main README](../README.md) for details on the backend architecture.
+This subfolder contains the details for the C++ -based game server and client. See the [main README](../README.md) for details on the backend architecture.
 
 # Key features
 * **C++-based Game Server running on Amazon Linux 2**
@@ -12,6 +12,14 @@ This subfolder contains the additional files for a C++ -based game server and cl
 * **Uses all the same CloudFormation templates as the main example**
 
 **Note**: _“The sample code; software libraries; command line tools; proofs of concept; templates; or other related technology (including any of the foregoing that are provided by our personnel) is provided to you as AWS Content under the AWS Customer Agreement, or the relevant written agreement between you and AWS (whichever applies). You should not use this AWS Content in your production accounts, or on production or other critical data. You are responsible for testing, securing, and optimizing the AWS Content, such as sample code, as appropriate for production grade use based on your specific quality control practices and standards. Deploying AWS Content may incur AWS charges for creating or using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.”_
+
+# Architecture Diagram
+
+The architecture diagram introduced here focuses on the GameLift resources.
+
+### GameLift Resources
+
+![Architecture Diagram GameLift Resources](../Architecture_gamelift.png "Architecture Diagram GameLift Resources")
 
 # Preliminary Setup
 
@@ -40,15 +48,16 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
 
 # Deployment
 
-1. **Deploy the Backend API with SAM** (`GameServiceAPI/deploy.sh`)
-    * Open file GameServiceAPI/deploy.sh in the Cloud9 editor
-    * Modify the script to set the `region` variable to your desired main region of the backend (Check from [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) that the region is supported by GameLift FlexMatch))
+The backend deployment steps 1-3 are here for convenience, you might have done them already.
+
+1. **Set up your configuration** (`configuration.sh`)
+    * Modify the script to set the `region` variable to your selected region for the backend services and GameLift resources
     * Modify the script to set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket
-    * Run the script to deploy the backend API (`cd GameServiceAPI && sh deploy.sh && cd ..`)
-2. **Deploy the Pre-Requirements for the GameLift Resources (Cognito Resources and Instance Role)** (`FleetDeployment/deployPreRequirements.sh`)
-    * Open file FleetDeployment/deployPreRequirements.sh in the Cloud9 editor
-    * Set the region variable in the script to your selected region
-    * Run the script to deploy the CloudFormation stack (`cd FleetDeployment && sh deployPreRequirements.sh && cd ..`)
+    * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the Fleet in two different Regions
+2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.sh`)
+    * Make sure you have the SAM CLI installed
+    * Run the script to deploy the backend API and the PreRequirements Stack (`deployBackendAndPreRequirements.sh`)
+    * This will run two scripts to deploy both the serverless backend with SAM (GameServiceAPI/deploy.sh) as well as the Cognito and IAM resources we need for configuration with CloudFormation (FleetDeployment/deployPreRequirements.sh).
 3. **Set the role to CloudWatch Agent configuration** (`CppServerAndClient/ServerBuild/amazon-cloudwatch-agent.json`)
     * Open file CppServerAndClient/ServerBuild/amazon-cloudwatch-agent.json in the Cloud9 editor
     * Replace the `role_arn` value with role provided as output by the previous script
@@ -56,7 +65,7 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
     * **NOTE**: This is **not** the file in the LinuxServerBuild folder in the root which is used by the Unity version of the example!
 4. **Set the API endpoint and the Cognito Identity Pool in the Client Project** (`CppServerAndClient/Client/Client.h`)
     * Open the file CppServerAndClient/Client/Client.h in the Cloud9 editor
-    * Set the value of `String backendApiUrl` to the endpoint created by the backend deployment. You can find this endpoint from the `gameservice-backend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
+    * Set the value of `String backendApiUrl` to the endpoint created by the backend deployment. You can find this endpoint from the `GameLiftExampleServerlessGameBackend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `String identityPoolId` to the identity pool created by the Pre-Requirements deployment. You can find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2.
     * Set the values of `const char* REGION` and `String regionString` to the applicable values of your selected main region. Set the value of `String secondaryRegionString` to a GameLift supported Location region. These two regions will be used based on the latencies provided by the clients to the matchmaking.
 5. **Download, Build and setup the GameLift C++ Server SDK**
@@ -69,7 +78,6 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
     * **NOTE**: This will also take some time as it downloads the whole SDK and builds the relevant parts
 6. **Build the server and Deploy the build and the GameLift resources** (`CppServerAndClient/BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh`)
     * You can test that the server compiles correctly by going to `CppServerAndClient/Server/` in the terminal and running `./build.sh`
-    * Open `CppServerAndClient/BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh` and set `region` and `secondaryregion` to the same ones you configured for the client
     * go to `CppServerAndClient` in the Cloud9 terminal and run `./BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh` to Build the server, upload it to GameLift and deploy all the GameLift resources with CloudFormation. This will take time as it will create a GameLift Fleet and deploy game servers to two different Regions. The CloudFormation wait might time out but you can check the progress also in the CloudFormation and GameLift management consoles.
 7. **Build and run two clients**
     * Open `CppServerAndClient/Client/` in two Cloud9 terminals (You can create a new one from the "+" icon)
@@ -77,6 +85,19 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
     * Run `./client` in both terminals to start two clients that request a new Cognito identity, call the API Gateway to request matchmaking and connect to the game server after matchmaking is done. The client terminates immediately after validating the player session token with the game server over TCP. The game server will terminate after 10 seconds from 2 successful clients connecting.
 
 # Implementation Overview
+
+## GameLift Resources
+
+The GameLift resources are deployed with `gamelift.yaml` template. The stack is named **GameLiftExampleResources**
+
+### GameLiftExampleResources Stack
+
+  * a **FlexMatch Matchmaking Rule Set** that defines a single team with 1 to 5 players and a requirement for the player skill levels to be within a distance of 10. All players will have the same skill level in the example that is stored in DynamoDB by the backend service. The FlexMatch Rule Set also defines a latency requirement of < 80ms for the clients. This is relaxed to 1000ms after 5 seconds, essentially allowing anyone to get to a game. The clients make HTTPS requests to Amazon endpoints to measure their latency and send this data to the backend which forwards it to the matchmaker. **NOTE:** The C++ server only accepts 2 clients and terminates the session. See the Unity example for more complete management of backfilling up to 5 players and terminating backfill tickets with game server termination.
+  * a **FlexMatch Matchmaking Configuration** that uses the Rule Set and routes game session placement requests to the Queue. It also uses automatic backfilling to add players to existing matches up to the max players.
+  * a **GameLift Queue** that is used to place game sessions on the GameLift Fleet. In the example we have a single fleet behind the Queue and it has two Regional locations (home Region and one secondary Region Location). You could have multiple Fleets within the Home Region (for example a Spot Fleet and a failover On-Demand Fleet for cost optimization). The queue has latency configuration for selecting the best Region for each group of players generated by FlexMatch based on their latency.
+  * a **GameLift Fleet** that sits behind the Queue and uses the latest game server build uploaded by the `deployBuildAndUpdateGameLiftResources.sh` script. The Fleet has two Regional locations and runs on Amazon Linux 2 and there are two game server processes running on each instance. The ports for the processes are defined as parameters to the game server process and matching ports are enabled for inbound traffic to the fleet. You can pack more game servers on each instance based on the instance size and the resource requirements of your server. Our example uses C5.large instance type which is a good starting point for compute intensive workloads. We will call the update-fleet-capacity with the AWS CLI to set both the scaling of both locations to min 1, max 2 and desired of 1 instances. To set the scaling policy to target 20% available game sessions, we do a separate call to the put-scaling-policy API at the end of the script. NOTE: This policy won't trigger in the sample configuration when you have 1 instance full in a Region, because 20% of 1 rounds down to 0. However, on an actual production workload where you typically run 10s of game servers, 20% is a good starting point for available game sessions.
+  * a **CloudWatch Dashboard** (*GameLift-Game-Server-Metrics-Global*) that aggregates metrics from both of the locations of your GameLift Fleet, and includes metrics such as current players, available sessions, average CPU/memory usage and session specific CPU/memory usage (from the procstat data sent by CW Agent).
+
 
 You can refer to the [main README](../README.md) for details on the backend resources and the overall architecture. This section contains only the details of the C++ server and client.
 
@@ -120,7 +141,7 @@ To delete the resources created in the example, go to **CloudFormation console**
 
 1. GameliftExampleResources
 2. GameLiftExamplePreRequirements
-3. gameservice-backend
+3. GameLiftExampleServerlessGameBackend
 
 In addition you can empty and delete the the bucket that contains the deployment assets for SAM:
 

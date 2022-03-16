@@ -12,13 +12,13 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using System.IO;
 
-#if SERVER
-
 // *** MONOBEHAVIOUR TO MANAGE SERVER LOGIC *** //
 
 public class Server : MonoBehaviour
 {
     public GameObject playerPrefab;
+
+    #if SERVER
 
     // List of players
     public List<NetworkPlayer> players = new List<NetworkPlayer>();
@@ -143,7 +143,7 @@ public class Server : MonoBehaviour
                 // Only handle input if the player exists
                 if (this.PlayerExists(msg.clientId))
                 {
-                    Debug.Log("Player moved: " + msg.float1 + "," + msg.float2 + " ID: " + msg.clientId);
+                    //Debug.Log("Player moved: " + msg.float1 + "," + msg.float2 + " ID: " + msg.clientId);
 
                     if (this.PlayerExists(msg.clientId))
                     {
@@ -238,8 +238,8 @@ public class NetworkServer
             client.NoDelay = true; // Use No Delay to send small messages immediately. UDP should be used for even faster messaging
             System.Console.WriteLine("Client accepted.");
 
-            // We have a maximum of 10 clients per game
-            if(this.clients.Count < 10)
+            // We have a maximum of 5 clients per game
+            if(this.clients.Count < 5)
             {
                 // Add client and give it the Id of the value of rollingPlayerId
                 this.clients.Add(client, this.server.rollingPlayerId);
@@ -275,7 +275,7 @@ public class NetworkServer
                 var messages = NetworkProtocol.Receive(tcpClient);
                 foreach(SimpleMessage message in messages)
                 {
-                    System.Console.WriteLine("Received message: " + message.message + " type: " + message.messageType);
+                    //System.Console.WriteLine("Received message: " + message.message + " type: " + message.messageType);
                     bool disconnect = HandleMessage(playerIdx, tcpClient, message);
                     if (disconnect)
                         this.clientsToRemove.Add(tcpClient);
@@ -460,9 +460,9 @@ public class NetworkServer
         // start the game once we have at least one client online
         this.readyClients.Add(client);
 
-        if (readyClients.Count >= 2)
+        if (readyClients.Count >= 1)
         {
-            System.Console.WriteLine("Enough clients, let's start the game!");
+            System.Console.WriteLine("We have our first player in, let's start the game!");
             this.gamelift.StartGame();
         }
 	}
@@ -489,16 +489,13 @@ public class NetworkServer
         // Get client id (this is the value in the dictionary where the TCPClient is the key)
         int clientId = this.clients[client];
 
-        System.Console.WriteLine("Got move from client: " + clientId + " with input: " + message.float1 + "," + message.float2);
+        //System.Console.WriteLine("Got move from client: " + clientId + " with input: " + message.float1 + "," + message.float2);
 
         // Add client ID
         message.clientId = clientId;
 
         // Add to list to create the gameobject instance on the server
         Server.messagesToProcess.Add(message);
-
-        // Just testing the StatsD client
-        this.gamelift.GetStatsdClient().SendCounter("players.PlayerPositionUpdate", 1);
     }
 
     private void RemoveClient(TcpClient client)
@@ -534,5 +531,6 @@ public class NetworkServer
             System.Console.WriteLine("Failed to disconnect player: " + e.Message);
         }
 	}
+
+    #endif
 }
-#endif

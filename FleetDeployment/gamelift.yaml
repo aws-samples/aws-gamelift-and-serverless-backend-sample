@@ -15,7 +15,7 @@ Parameters:
     Description: The name of the stack that defines the role for the gamelift instances
   BackendStackName:
     Type: String
-    Default: gameservice-backend
+    Default: GameLiftExampleServerlessGameBackend
     Description: The name of the stack for the backend
   SecondaryLocation:
     Type: String
@@ -38,8 +38,8 @@ Resources:
             }],
             "teams": [{
                 "name": "oneteam",
-                "maxPlayers": 10,
-                "minPlayers": 4
+                "maxPlayers": 5,
+                "minPlayers": 1
             }],
             "rules": [{
                 "name": "FairSkill",
@@ -54,18 +54,13 @@ Resources:
               "name": "FastConnection",
               "description": "Prefer matches with fast player connections first",
               "type": "latency",
-              "maxLatency": 50
+              "maxLatency": 80
             }],
             "expansions": [{
-                "target": "teams[oneteam].minPlayers",
-                "steps": [{
-                    "waitTimeSeconds": 5,
-                    "value": 2
-                }]},{
-                "target": "rules[FastConnection].maxLatency",
-                "steps": [{
-                    "waitTimeSeconds": 10,
-                    "value": 200
+                  "target": "rules[FastConnection].maxLatency",
+                  "steps": [{
+                      "waitTimeSeconds": 5,
+                      "value": 1000
                 }]
             }]
         }
@@ -100,8 +95,8 @@ Resources:
       AcceptanceRequired: false
       AdditionalPlayerCount: 0
       RequestTimeoutSeconds: 25
-      BackfillMode: "MANUAL"
-      Description: "A basic matchmaking configuration"
+      BackfillMode: "AUTOMATIC"
+      Description: "A basic matchmaking configuration that matched 1 to 5 players based on latency"
       # Just some example properties, not used in our game
       GameProperties:
         - Key: "gamemode"
@@ -137,11 +132,11 @@ Resources:
             LaunchPath: /local/game/GameLiftExampleServer.x86_64
             Parameters: -logFile /local/game/logs/myserver7777.log -port 7777
       EC2InstanceType: "c5.large"
-      # We want exactly one instance (no scaling allowed in the example)
-      DesiredEC2Instances: "1"
-      #Create TLS certificate for optional encrypted client-server traffic
+      #Create TLS certificate for optional encrypted client-server traffic (not implemented in the example server)
       CertificateConfiguration:
         CertificateType: GENERATED
+      #Set termination protection on to protect running game sessions from being terminated (you can set this to NoProtection for dev fleets) 
+      NewGameSessionProtectionPolicy: FullProtection
       InstanceRoleARN:
         Fn::ImportValue:
           !Sub "${PreRequirementsStackName}-InstanceRole"
@@ -178,14 +173,26 @@ Resources:
       DashboardBody:
        Fn::Sub:
         |-
-        {"widgets":[{"type":"metric","x":0,"y":0,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_cpu_usage\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60)", "id": "cpu1", "region": "${AWS::Region}" }]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"CPU Usage ${AWS::Region}"}},
-                    {"type":"metric","x":12,"y":0,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_cpu_usage\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60)", "id": "cpu2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"CPU Usage ${SecondaryLocation}"}},
-                    {"type":"metric","x":0,"y":6,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_memory_rss\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60)", "id": "mem1", "region": "${AWS::Region}" }]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"Memory Usage RSS ${AWS::Region}"}},
-                    {"type":"metric","x":12,"y":6,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_memory_rss\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60)", "id": "mem2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"Memory Usage RSS ${SecondaryLocation}"}},
-                    {"type":"metric","x":0,"y":12,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "AVG(SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_cpu_usage\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60))", "id": "cpu1", "region": "${AWS::Region}" }]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"Average CPU Usage ${AWS::Region}"}},
-                    {"type":"metric","x":12,"y":12,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "AVG(SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_cpu_usage\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60))", "id": "cpu2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"Average CPU Usage ${SecondaryLocation}"}},
-                    {"type":"metric","x":0,"y":18,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "AVG(SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_memory_rss\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60))", "id": "mem1", "region": "${AWS::Region}" }]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"Average Memory Usage RSS ${AWS::Region}"}},
-                    {"type":"metric","x":12,"y":18,"width":12,"height":6,"properties":{"metrics":[[{ "expression": "AVG(SEARCH('{CWAgent,host,pattern,process_name} MetricName=\"procstat_memory_rss\" process_name=\"GameLiftExampleServer.x86_64\"', 'Average', 60))", "id": "mem2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"Average Memory Usage RSS ${SecondaryLocation}"}}
-        
+        {"widgets":[{"type":"metric","x":0,"y":0,"width":6,"height":3,"properties":{"view":"singleValue","metrics":[[{"expression":"SUM(SEARCH('{AWS/GameLift,ConfigurationName} MetricName=\"CurrentTickets\"', 'Maximum', 10))","id":"matchmakingtickets","region":"${AWS::Region}"}]],"period":10,"stat":"Maximum","region":"${AWS::Region}","title":"Current Matchmaking Tickets"}},
+                    {"type":"metric","x":6,"y":0,"width":7,"height":3,"properties":{"view":"singleValue","metrics":[[{"expression":"SELECT AVG(PercentAvailableGameSessions) FROM SCHEMA(\"AWS/GameLift\", FleetId,Location) WHERE Location='${AWS::Region}'","id":"availablegamesessions","region":"${AWS::Region}"}]],"period":10,"stat":"Maximum","region":"${AWS::Region}","title":"Available game sessions % ${AWS::Region}"}},
+                    {"type":"metric","x":13,"y":0,"width":7,"height":3,"properties":{"view":"singleValue","metrics":[[{"expression":"SELECT AVG(PercentAvailableGameSessions) FROM SCHEMA(\"AWS/GameLift\", FleetId,Location) WHERE Location='${SecondaryLocation}'","id":"availablegamesessions","region":"${AWS::Region}"}]],"period":10,"stat":"Maximum","region":"${AWS::Region}","title":"Available game sessions % ${SecondaryLocation}"}},
+ 
+                    {"type":"metric","x":0,"y":3,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_cpu_usage) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64'", "id": "cpu1", "region": "${AWS::Region}" }]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"Average CPU Usage ${AWS::Region}"}},
+                    {"type":"metric","x":10,"y":3,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_cpu_usage) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64'", "id": "cpu2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"Average CPU Usage ${SecondaryLocation}"}},
+                    {"type":"metric","x":0,"y":8,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_memory_rss) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64'", "id": "mem1", "region": "${AWS::Region}" }]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"Average Memory Usage RSS ${AWS::Region}"}},
+                    {"type":"metric","x":10,"y":8,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_memory_rss) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64'", "id": "mem2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"Average Memory Usage RSS ${SecondaryLocation}"}},
+                    
+                    {"type":"metric","x":0,"y":13,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_cpu_usage) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64' GROUP BY host, \"pattern\", process_name", "id": "cpu1", "region": "${AWS::Region}"}]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"CPU Usage ${AWS::Region} per session"}},
+                    {"type":"metric","x":10,"y":13,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_cpu_usage) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64' GROUP BY host, \"pattern\", process_name", "id": "cpu2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"CPU Usage ${SecondaryLocation} per session"}},
+                    {"type":"metric","x":0,"y":18,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_memory_rss) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64' GROUP BY host, \"pattern\", process_name", "id": "mem1", "region": "${AWS::Region}" }]],"period":60,"stat":"Average","region":"${AWS::Region}","title":"Memory Usage RSS ${AWS::Region} per session"}},
+                    {"type":"metric","x":10,"y":18,"width":10,"height":5,"properties":{"metrics":[[{ "expression": "SELECT AVG(procstat_memory_rss) FROM CWAgent WHERE process_name = 'GameLiftExampleServer.x86_64' GROUP BY host, \"pattern\", process_name", "id": "mem2", "region": "${SecondaryLocation}" }]],"period":60,"stat":"Average","region":"${SecondaryLocation}","title":"Memory Usage RSS ${SecondaryLocation} per session"}}
+
         ]}
+
+Outputs:
+  FleetID:
+    Description: The ID of the created GameLift Fleet
+    Value: !Ref Fleet
+    Export:
+      Name: !Sub "${AWS::StackName}-FleetID"
  

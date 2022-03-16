@@ -4,8 +4,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Game Service API
-  An API for requesting new game sessions through matchmaking
+  Game Service APIs.
+  APIs for requesting new game sessions through matchmaking
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -169,6 +169,29 @@ Resources:
           Properties:
             Topic:
               !Ref MatchmakingEventsSNSTopic
+
+  # CloudFormation Dashboard for backend metrics
+  DashboardBackendMetrics:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: GameLift-Game-Backend-Metrics
+      DashboardBody:
+       Fn::Sub:
+        |-
+        {"widgets":[
+                    {"type": "text","x": 0, "y": 0,"width": 24,"height": 1,"properties": {"markdown": "# AWS Lambda & API Gateway"}},
+                    {"type": "metric", "x": 0,"y": 1,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/ApiGateway", "Count", "ApiName", "GameLiftExampleServerlessGameBackend" ],[ ".", "5XXError", ".", "." ],[ ".", "4XXError", ".", "." ]],"region": "${AWS::Region}","title": "API Gateway Requests","period": 60,"view": "timeSeries","stacked": false,"stat": "Sum"}},
+                    {"type": "metric","x": 8,"y": 1,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "Invocations", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Sum", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Sum", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Sum", "label": "RequestMatchmakingFunction" } ],[ { "expression": "SUM(METRICS())", "label": "Total Invocations", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "Lambda Invocations"}},
+                    {"type": "metric","x": 16, "y": 1,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "Errors", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Sum", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Sum", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Sum", "label": "RequestMatchmakingFunction" } ],[ { "expression": "SUM(METRICS())", "label": "Total Errors", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "Lambda Errors"}},
+                    {"type": "metric","x": 0,"y": 7,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "Duration", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Average", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Average", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Average", "label": "RequestMatchmakingFunction" } ],[ { "expression": "AVG(METRICS())", "label": "Average Duration", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "Lambda Duration (average)"}},
+                    {"type": "metric","x": 8,"y": 7,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/Lambda", "ConcurrentExecutions", "FunctionName", "${ProcessMatchmakingEvents}", { "stat": "Maximum", "label": "ProcessMatchmakingEvents" } ],[ "...", "${RequestMatchStatusFunction}", { "stat": "Maximum", "label": "RequestMatchStatusFunction" } ],[ "...", "${RequestMatchmakingFunction}", { "stat": "Maximum", "label": "RequestMatchmakingFunction" } ],[ { "expression": "SUM(METRICS())", "label": "Total ConcurrentExecutions", "yAxis": "right" } ]],"region": "${AWS::Region}","title": "Lambda ConcurrentExecutions"}},         
+                    
+                    {"type": "text","x": 0, "y": 8,"width": 24,"height": 1,"properties": {"markdown": "# Amazon DynamoDB"}},
+                    {"type": "metric","x": 0,"y": 9,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/DynamoDB", "SuccessfulRequestLatency", "TableName", "GameLiftExampleMatchmakingTickets", "Operation", "Scan" ],[ "...", "Query" ],[ "...", "PutItem" ],[ "...", "GetItem" ]],"region": "${AWS::Region}","title": "MatchmakingTickets Table Latency","period": 60,"view": "timeSeries","stacked": false}},
+                    {"type": "metric","x": 8,"y": 9,"width": 8,"height": 6,"properties": {"metrics": [[ "AWS/DynamoDB", "SuccessfulRequestLatency", "TableName", "GameLiftExamplePlayerData", "Operation", "Scan" ],[ "...", "Query" ],[ "...", "PutItem" ],[ "...", "GetItem" ]],"region": "${AWS::Region}","title": "PlayerData Table Latency","period": 60,"view": "timeSeries","stacked": false}}
+        ]}
+  
+
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

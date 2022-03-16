@@ -1,7 +1,7 @@
 #!/bin/bash
 
-region="us-east-1"
-deploymentbucketname="<YOUR-BUCKET-NAME>"
+# Get the configuration variables
+source ../configuration.sh
 
 # Create deployment bucket if it doesn't exist
 if [ $region == "us-east-1" ]
@@ -14,4 +14,4 @@ fi
 # Build, package and deploy the backend
 sam build
 sam package --region $region --s3-bucket $deploymentbucketname --output-template-file gameservice.yaml
-sam deploy --template-file gameservice.yaml --region $region --capabilities CAPABILITY_IAM --stack-name gameservice-backend
+sam deploy --template-file gameservice.yaml --region $region --capabilities CAPABILITY_IAM --stack-name GameLiftExampleServerlessGameBackend

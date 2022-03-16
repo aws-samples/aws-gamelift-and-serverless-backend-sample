@@ -69,7 +69,10 @@ public class NetworkClient
 				{
 					GameObject.FindObjectOfType<UIManager>().SetTextBox("Aborting matchmaking, no match done on 20 seconds");
 					Debug.Log("Aborting matchmaking, no match done on 20 seconds");
-					yield return null;
+					// Wait a while and restart
+					yield return new WaitForSeconds(1.5f);
+					var clientObject = GameObject.FindObjectOfType<Client>();
+					clientObject.Restart();
 					break;
 				}
 				yield return null;
@@ -102,8 +105,16 @@ public class NetworkClient
 		{
 			//Connect with matchmaking info
 			Debug.Log("Connect..");
-			client = new TcpClient(this.matchStatusInfo.IpAddress, this.matchStatusInfo.Port);
-            client.NoDelay = true; // Use No Delay to send small messages immediately. UDP should be used for even faster messaging
+			this.client = new TcpClient();
+			var result = client.BeginConnect(this.matchStatusInfo.IpAddress, this.matchStatusInfo.Port, null, null);
+
+			var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2));
+
+			if (!success)
+			{
+				throw new Exception("Failed to connect.");
+			}
+			client.NoDelay = true; // Use No Delay to send small messages immediately. UDP should be used for even faster messaging
 			Debug.Log("Done");
 
 			// Send the player session ID to server so it can validate the player
@@ -112,16 +123,11 @@ public class NetworkClient
 
 			return true;
 		}
-		catch (ArgumentNullException e)
+		catch (Exception e)
 		{
 			Debug.Log(e.Message);
 			client = null;
-			return false;
-		}
-		catch (SocketException e) // server not available
-		{
-			Debug.Log(e.Message);
-			client = null;
+			GameObject.FindObjectOfType<UIManager>().SetTextBox("Failed to connect: " + e.Message);
 			return false;
 		}
 	}
@@ -133,6 +139,10 @@ public class NetworkClient
 		{
 			Debug.Log("Failed to connect to server");
 			GameObject.FindObjectOfType<UIManager>().SetTextBox("Connection to server failed.");
+
+			// Restart the client
+			var clientObject = GameObject.FindObjectOfType<Client>();
+			clientObject.Restart();
 		}
 		else
 		{
@@ -194,8 +204,7 @@ public class NetworkClient
 	private void HandleMessage(SimpleMessage msg)
 	{
 		// parse message and pass json string to relevant handler for deserialization
-		Debug.Log("Message received:" + msg.messageType + ":" + msg.message);
-
+		//Debug.Log("Message received:" + msg.messageType + ":" + msg.message);
 		if (msg.messageType == MessageType.Reject)
 			HandleReject();
 		else if (msg.messageType == MessageType.Disconnect)
@@ -220,12 +229,20 @@ public class NetworkClient
 
 	private void HandleDisconnect()
 	{
-		Debug.Log("Got disconnected by server");
-		GameObject.FindObjectOfType<UIManager>().SetTextBox("Got disconnected by server");
-		NetworkStream stream = client.GetStream();
-		stream.Close();
-		client.Close();
-		client = null;
+		try
+		{
+			Debug.Log("Got disconnected by server");
+			GameObject.FindObjectOfType<UIManager>().SetTextBox("Got disconnected by server");
+			NetworkStream stream = client.GetStream();
+			stream.Close();
+			client.Close();
+			client = null;
+		}
+		catch (Exception e)
+		{
+			Debug.Log("Error when disconnecting, setting client to null.");
+			client = null;
+		}
 	}
 
 	private void HandleOtherPlayerSpawned(SimpleMessage message)

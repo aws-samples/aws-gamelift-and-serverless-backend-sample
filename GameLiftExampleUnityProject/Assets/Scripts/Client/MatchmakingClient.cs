@@ -14,13 +14,13 @@ using AWSSignatureV4_S3_Sample.Signers;
 
 public class MatchmakingClient
 {
-    // **** SET THESE VARIABLES BASED ON YOUR OWN CONFIGURATION *** //
-    static string apiEndpoint = "https://YOURENDPOINT.execute-api.us-east-1.amazonaws.com/Prod/";
-    public static string identityPoolID = "us-east-1:YOURIDENTITYPOOLID";
-    public static string regionString = "us-east-1";
-    public static string secondaryLocationRegionString = "eu-west-1";
-    public static Amazon.RegionEndpoint region = Amazon.RegionEndpoint.USEast1;
-    // *********************************************************** //
+    Client client; //The game client Monobehaviour
+
+    public MatchmakingClient()
+    {
+        // Find a reference to the client
+        this.client = GameObject.FindObjectOfType<Client>();
+    }
 
     // Helper function to send and wait for response to a signed request to the API Gateway endpoint
     async Task<string> SendSignedGetRequest(string requestUrl)
@@ -55,7 +55,7 @@ public class MatchmakingClient
                 i++;
             }
             Debug.Log("Latencies: " + latenciesString);
-            var response = Task.Run(() => this.SendSignedGetRequest(apiEndpoint + "requestmatchmaking?latencies="+latenciesString));
+            var response = Task.Run(() => this.SendSignedGetRequest(this.client.apiEndpoint + "requestmatchmaking?latencies="+latenciesString));
             response.Wait(10000);
             string jsonResponse = response.Result;
             MatchMakingRequestInfo info = JsonUtility.FromJson<MatchMakingRequestInfo>(jsonResponse);
@@ -74,7 +74,7 @@ public class MatchmakingClient
         try
         {
             //Make the signed request and wait for max 10 seconds to complete
-            var response = Task.Run(() => this.SendSignedGetRequest(apiEndpoint + "requestmatchstatus?ticketId=" + ticketId));
+            var response = Task.Run(() => this.SendSignedGetRequest(this.client.apiEndpoint + "requestmatchstatus?ticketId=" + ticketId));
             response.Wait(10000);
             string jsonResponse = response.Result;
             MatchStatusInfo info = JsonUtility.FromJson<MatchStatusInfo>(jsonResponse);
@@ -105,7 +105,7 @@ public class MatchmakingClient
             EndpointUri = uri,
             HttpMethod = "GET",
             Service = "execute-api",
-            Region = regionString
+            Region = this.client.regionString
         };
 
         //Extract the query parameters
@@ -135,7 +135,7 @@ public class MatchmakingClient
             try
             {
                 if (header.Key != null && header.Value != null)
-                    request.Headers.Add(header.Key, header.Value);
+                    request.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
             catch (Exception e)
             {

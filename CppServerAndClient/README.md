@@ -74,7 +74,11 @@ The backend deployment steps 1-3 are here for convenience, you might have done t
 6. **Build the server and Deploy the build and the GameLift resources** (`CppServerAndClient/BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh`)
     * You can test that the server compiles correctly by going to `CppServerAndClient/Server/` in the terminal and running `./build.sh`
     * go to `CppServerAndClient` in the Cloud9 terminal and run `./BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh` to Build the server, upload it to GameLift and deploy all the GameLift resources with CloudFormation. This will take time as it will create a GameLift Fleet and deploy game servers to two different Regions. The CloudFormation wait might time out but you can check the progress also in the CloudFormation and GameLift management consoles.
-7. **Build and run two clients**
+    * NOTE: It's likely this step will time out when waiting for the Stack because of Cloud9 AWS token expiration. Please check from CloudFormation console that the stack deployment is complete.
+7. **Configure the Fleet scaling**
+    * Make sure the previous step has run completely by checking in the CloudFormation console that the Stack is complete
+    * Go to `CppServerAndClient` in the Cloud9 terminal and run `./ConfigureFleetScaling.sh` to configure the scaling of the Fleet. You can modify this script, the defaults are min 1, desired 1 and max 1, and a 20% free game sessions scaling configuration.
+8. **Build and run two clients**
     * Open `CppServerAndClient/Client/` in two Cloud9 terminals (You can create a new one from the "+" icon)
     * Run `./build.sh` in one of the terminals
     * Run `./client` in both terminals to start two clients that request a new Cognito identity, call the API Gateway to request matchmaking and connect to the game server after matchmaking is done. The client terminates immediately after validating the player session token with the game server over TCP. The game server will terminate after 10 seconds from 2 successful clients connecting.

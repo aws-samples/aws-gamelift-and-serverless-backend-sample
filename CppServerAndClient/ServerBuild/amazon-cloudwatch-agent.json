@@ -1,45 +1,61 @@
 {
-    "agent": {
-      "metrics_collection_interval": 10,
-      "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
-      "credentials": {
-          "role_arn": "arn:aws:iam::XXXXXX:<YOURROLE>"
+  "agent": {
+    "metrics_collection_interval": 10,
+    "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
+    "credentials": {
+      "role_arn": "arn:aws:iam::XXXX:<YOURROLE>"
+    }
+  },
+  "metrics":{
+      "metrics_collected":{
+         "statsd":{
+            "service_address":":8125",
+            "metrics_collection_interval":60,
+            "metrics_aggregation_interval":60
+         },
+         "procstat": [
+          {
+              "pattern": "-port 1935",
+              "measurement": [
+                  "cpu_usage",
+                  "memory_rss"
+              ]
+          },
+          {
+            "pattern": "-port 7777",
+            "measurement": [
+                "cpu_usage",
+                "memory_rss"
+            ]
+        }
+        ]
+      }
+   },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
+            "log_group_name": "AmazonCloudWatchAgentLogs",
+            "log_stream_name": "AmazonCloudWatchAgentLogs-{instance_id}",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/local/game/logs/myserver1935.log",
+            "log_group_name": "GameServerLogs",
+            "log_stream_name": "GameServerLogs-{instance_id}-1935",
+            "timezone": "Local"
+          },
+          {
+            "file_path": "/local/game/logs/myserver7777.log",
+            "log_group_name": "GameServerLogs",
+            "log_stream_name": "GameServerLogs-{instance_id}-7777",
+            "timezone": "Local"
+          }
+        ]
       }
     },
-    "metrics":{
-        "metrics_collected":{
-           "statsd":{
-              "service_address":":8125",
-              "metrics_collection_interval":60,
-              "metrics_aggregation_interval":60
-           }
-        }
-     },
-    "logs": {
-      "logs_collected": {
-        "files": {
-          "collect_list": [
-            {
-              "file_path": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
-              "log_group_name": "AmazonCloudWatchAgentLogs",
-              "log_stream_name": "AmazonCloudWatchAgentLogs-{instance_id}",
-              "timezone": "UTC"
-            },
-            {
-              "file_path": "/local/game/logs/myserver1935.log",
-              "log_group_name": "GameServerLogs",
-              "log_stream_name": "GameServerLogs-{instance_id}-1935",
-              "timezone": "Local"
-            },
-            {
-              "file_path": "/local/game/logs/myserver7777.log",
-              "log_group_name": "GameServerLogs",
-              "log_stream_name": "GameServerLogs-{instance_id}-7777",
-              "timezone": "Local"
-            }
-          ]
-        }
-      },
-      "force_flush_interval" : 15
-    }
+    "force_flush_interval" : 15
   }
+}

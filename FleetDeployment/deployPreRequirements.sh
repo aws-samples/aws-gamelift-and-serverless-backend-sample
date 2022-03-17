@@ -28,9 +28,11 @@ fi
 
 echo "We need to set this Role ARN to the cloudwatch agent configuration in /LinuxServerBuild/amazon-cloudwatch-agent.json:"
 echo $(aws cloudformation --region $region describe-stacks --stack-name GameLiftExamplePreRequirements --query "Stacks[0].Outputs[0].OutputValue")
-echo "Configuring the role in /LinuxServerBuild/amazon-cloudwatch-agent.json..."
 rolearn=$(aws cloudformation --region $region describe-stacks --stack-name GameLiftExamplePreRequirements --query "Stacks[0].Outputs[0].OutputValue")
+echo "Configuring the role in /LinuxServerBuild/amazon-cloudwatch-agent.json (Unity build)..."
 sed -i -e "s|.*role_arn.*|        \"role_arn\": $rolearn|" ../LinuxServerBuild/amazon-cloudwatch-agent.json
+echo "Configuring the role in /CppServerAndClient/ServerBuild/amazon-cloudwatch-agent.json (C++ Build)..."
+sed -i -e "s|.*role_arn.*|        \"role_arn\": $rolearn|" ../CppServerAndClient/ServerBuild/amazon-cloudwatch-agent.json
 echo "Done!"
 echo ""
 echo "You need this Identity pool ID for your client configuration"

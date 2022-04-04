@@ -75,11 +75,11 @@ Before starting, navigate to the repository root in your terminal and open the p
 1. **Set up your configuration** (`configuration.sh`)
     * Set the `region` variable to your selected region for the backend services and GameLift resources
     * Set the `deploymentbucketname` to a **globally unique** name for the code deployment bucket. The deployment script in step 2 will create this S3 bucket for storing backend code artifacts.
-    * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the Fleet in two different Regions
+    * Set the `secondaryregion` variable in the script to your selected secondary location as we're running the game server fleet in two different Regions
 2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.sh`)
     * Run the script to deploy the backend API and the PreRequirements Stack (`./deployBackendAndPreRequirements.sh`)
     * This will run two scripts to deploy both the serverless backend with SAM (*GameServiceAPI/deploy.sh*) as well as the Cognito and IAM resources we need for configuration with CloudFormation (*FleetDeployment/deployPreRequirements.sh*).
-    * The script will automatically replace the `role_arn` value in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack
+    * The script will automatically replace the `role_arn` value in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack. This is used later on to configure CloudWatch Agent to send server logs and metrics to.
 3. **Move to Unity or C++ instructions** for the game server and client builds deployment
     * [Unity deployment README](README_UnityClientServer.md)
     * [C++ deployment README](CppServerAndClient/README.md)
@@ -91,12 +91,12 @@ Before starting, navigate to the repository root in your Powershell and open the
 1. **Set up your configuration** (`configuration.xml`)
     * Set the `Region` value to your selected region for the backend services and GameLift resources
     * Set the `DeploymentBucketName` to a **globally unique** name for the code deployment bucket. The deployment script in step 2 will create this S3 bucket for storing backend code artifacts.
-    * Set the `SecondaryRegion` value in the script to your selected secondary location as we're running the Fleet in two different Regions
+    * Set the `SecondaryRegion` value in the script to your selected secondary location as we're running the game server fleet in two different Regions
 2. **Deploy the Backend API and PreRequirements stacks** (`deployBackendAndPreRequirements.ps1`)
     * Run the script to deploy the backend API and the PreRequirements Stack (`./deployBackendAndPreRequirements.ps1`)
     * This will run two scripts to deploy both the serverless backend with SAM (*GameServiceAPI/deploy.ps1*) as well as the Cognito and IAM resources we need for configuration with CloudFormation (*FleetDeployment/deployPreRequirements.ps1*).
     * Select 'R' if prompted to run the individual scripts
-    * Replace the value of `role_arn` in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack. You can find this as an output of the deployment script or as an Output of the GameLiftExamplePreRequirements stack in CloudFormation.
+    * Replace the value of `role_arn` in `LinuxServerBuild/amazon-cloudwatch-agent.json` with the one created by the stack. You can find this as an output of the deployment script or as an Output of the GameLiftExamplePreRequirements stack in CloudFormation. This is used later on to configure CloudWatch Agent to send server logs and metrics to.
 3. **Move to Unity instructions** for the game server and client builds deployment. C++ deployment doesn't support Windows currently.
     * [Unity deployment README](README_UnityClientServer.md)
 

@@ -33,6 +33,7 @@ The architecture diagram introduced here focuses on the GameLift resources of th
 2. **Install Build Tools**
     * **MacOS**:
       * Go to [Mono Project Download Page](https://www.mono-project.com/download/stable/) and follow the instructions for installing
+      * Restart your terminal
       * Mono will come with the build tools needed in the next step
     * **Windows**:
       * [Download Visual Studio 2022 Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe), run the installer, select *".NET Desktop Build Tools"* and install. This should install 4.7.2 framework by default (needed for the GameLift Server SDK build). Please check it is included (If not, you can add it separately afterward by modifying the installation)
@@ -51,7 +52,7 @@ The architecture diagram introduced here focuses on the GameLift resources of th
         3. Download the the S3 example for signing API Requests with SigV4 and copy the relevant folders (Signers and Util) to the Unity project (`GameLiftExampleUnityProject/Assets/Dependencies/`)
 3. **Add the Unity Project to UnityHub and open it** (`GameLiftExampleUnityProject`)
     * You will likely need to upgrade the project to a newer Unity version. Select *"Choose another editor version"* in UnityHub and select "Open with XXXX.X.XX" depending on your version
-    * In case the dependencies were installed correctly in step 2, you should see no errors
+    * In case the dependencies were installed correctly in step 3, you should see no errors
 
 # Deployment with Bash Scripts
 

@@ -135,12 +135,17 @@ public class Client : MonoBehaviour
         // Check latencies to Regions by pinging DynamoDB endpoints (they just report health but we use them here for latency)
         var response = Task.Run(() => this.SendHTTPSPingRequest("https://dynamodb."+ region1 + ".amazonaws.com"));
         response.Wait(1000); // We'll expect a response in 1 second
-        print(region1 + ":" + response.Result);
+        string latency1 = "Latency " + region1 + ": " + response.Result + " ms";
+        print(latency1);
         this.latencies.Add(region1, response.Result);
         response = Task.Run(() => this.SendHTTPSPingRequest("https://dynamodb." + region2 + ".amazonaws.com"));
         response.Wait(1000); // We'll expect a response in 1 second
-        print(region2 + ":" + response.Result);
+        string latency2 = "Latency " + region2 + ": " + response.Result + " ms";
+        print(latency2);
         this.latencies.Add(region2, response.Result);
+
+        // Set the UI text
+        FindObjectOfType<UIManager>().SetLatencyInfo(latency1, latency2);
     }
 
     // Called when restart button is clicked

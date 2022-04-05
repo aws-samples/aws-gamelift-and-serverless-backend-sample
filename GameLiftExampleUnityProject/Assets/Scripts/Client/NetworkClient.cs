@@ -59,7 +59,10 @@ public class NetworkClient
 					yield return null;
 					matchmakingDone = true;
 
-                    // Matchmaking done, connect to the servers
+					// Set the info to UI
+					GameObject.FindObjectOfType<UIManager>().SetGameServerInfo("Game Server DNS: " + this.matchStatusInfo.DnsName + "\n\n" + "Port: " + this.matchStatusInfo.Port + "\n" + "\n" + "PlayerSessionId: " + this.matchStatusInfo.PlayerSessionId + "\n");
+
+					// Matchmaking done, connect to the servers
 					Connect();
 				}
 				tries++;

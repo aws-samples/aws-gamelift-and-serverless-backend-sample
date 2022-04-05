@@ -35,6 +35,7 @@ public class MatchmakingClient
         // Get the response
         var responseStr = await resp.Content.ReadAsStringAsync();
         Debug.Log(responseStr);
+
         return responseStr;
     }
 

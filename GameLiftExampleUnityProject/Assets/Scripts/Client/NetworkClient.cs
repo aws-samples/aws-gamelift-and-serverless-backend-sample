@@ -50,7 +50,7 @@ public class NetworkClient
 				{
 					Debug.Log("Still waiting for placement");
 					GameObject.FindObjectOfType<UIManager>().SetTextBox("Still waiting for placement...");
-					yield return new WaitForSeconds(1.0f);
+					yield return new WaitForSeconds(2.0f);
 				}
 				else
 				{
@@ -68,7 +68,7 @@ public class NetworkClient
 				tries++;
 
                 // Return null if we failed after 20 tries
-				if (tries >= 20)
+				if (tries >= 10)
 				{
 					GameObject.FindObjectOfType<UIManager>().SetTextBox("Aborting matchmaking, no match done on 20 seconds");
 					Debug.Log("Aborting matchmaking, no match done on 20 seconds");

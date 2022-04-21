@@ -19,3 +19,11 @@ You need to have the backend, GameLift resources and client all set up and deplo
 
 The bots will be deployed to your defined home region but you could easily modify the script to deploy the stack to multiple regions to better test latency-based matchmaking and multi-region fleets.
 
+# Note for MacOS M1 development machines
+
+If you're building the containers on an ARM-based Mac, please use the following build command instead in the `./buildSetupAndRunBots.sh` script:
+
+`docker buildx build ./Build/ --platform=linux/amd64 -t $accountid.dkr.ecr.$region.amazonaws.com/gamelift-example-bot-client:$build_id`
+
+This will build an x86 version of the Docker container so it will run correctly on AWS Fargate.
+

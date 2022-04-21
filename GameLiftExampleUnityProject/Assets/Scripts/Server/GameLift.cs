@@ -90,6 +90,9 @@ public class GameLift : MonoBehaviour
                     //Send session started to CloudWatch just for testing
                     this.statsdClient.SendCounter("game.SessionStarted", 1);
 
+                    //Log the session ID
+                    System.Console.WriteLine("Game Session ID: " + justSessionId);
+
                     System.Console.WriteLine("Matchmaker data New session:" + gameSession.MatchmakerData);
                     this.matchmakerData = MatchmakerData.FromJson(gameSession.MatchmakerData);
                     this.backfillTicketID = this.matchmakerData.AutoBackfillTicketId;

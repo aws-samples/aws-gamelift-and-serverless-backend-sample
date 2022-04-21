@@ -80,11 +80,11 @@ Resources:
                 - !Ref "AWS::Region"
                 - '::alias/'
                 - !Ref Alias
-      # We try for less than 50ms latency for 5 seconds and then accept anything
-      # FlexMatch already tries to group players with less than 50ms latency to a Region as well
+      # We try for less than 80ms latency for 3 seconds and then accept anything
+      # FlexMatch already tries to group players with less than 80ms latency to a Region as well
       PlayerLatencyPolicies:
-        - MaximumIndividualPlayerLatencyMilliseconds: 60
-          PolicyDurationSeconds: 5
+        - MaximumIndividualPlayerLatencyMilliseconds: 80
+          PolicyDurationSeconds: 3
         - MaximumIndividualPlayerLatencyMilliseconds: 1000
 
   # Configuration that uses the rule set

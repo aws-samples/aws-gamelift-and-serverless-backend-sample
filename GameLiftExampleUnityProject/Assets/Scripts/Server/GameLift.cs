@@ -34,6 +34,9 @@ public class GameLift : MonoBehaviour
     // Backfill ticket ID (received and updated on game session updates)
     string backfillTicketID = null;
 
+    // Game session timer, we don't want to run over 20 minutes
+    private float gameSessionTimer = 0.0f;
+
     // Get the port to host the server from the command line arguments
     private int GetPortFromArgs()
     {
@@ -202,6 +205,20 @@ public class GameLift : MonoBehaviour
             {
                 System.Console.WriteLine("No players in 5 seconds from starting the game, terminate game session");
                 this.waitingForPlayerTime = 0.0f;
+                this.gameSessionInfoReceived = false;
+                this.TerminateGameSession();
+            }
+        }
+
+        // Backup mechanism: Terminate any sessions that have run over 20 minutes as our game typically lasts for 5 minutes max
+        if(this.gameStarted)
+        {
+            this.gameSessionTimer += Time.deltaTime;
+            if (this.gameSessionTimer > 1200.0f)
+            {
+                System.Console.WriteLine("Reached max game session length (20 minutes). Terminate session.");
+                this.waitingForPlayerTime = 0.0f;
+                this.gameSessionTimer = 0.0f;
                 this.gameSessionInfoReceived = false;
                 this.TerminateGameSession();
             }

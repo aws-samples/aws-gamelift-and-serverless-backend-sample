@@ -4,8 +4,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Game Service APIs.
-  APIs for requesting new game sessions through matchmaking
+  (SO9046) Multiplayer Session-based Game hosting on AWS v1.0.0. This solution shows how to host multiplayer games on AWS leveraging a serverless backend and Amazon GameLift.
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:

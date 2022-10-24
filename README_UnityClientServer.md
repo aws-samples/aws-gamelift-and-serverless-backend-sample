@@ -69,7 +69,8 @@ The architecture diagram introduced here focuses on the GameLift resources of th
     * **Unity 2021:** 
         * For Unity 2021 you need to manually create a Dedicated Server platform build as scripted builds are not supported for the dedicated services
         * Select *"File -> Build Settings"*
-        * Switch the platform to Dedicated Server and select Linux
+        * Switch the platform to Dedicated Server and select Linux. NOTE: This is important to do before the next step, as Unity will lose the Scripting define symbols when you switch to Dedicated Server
+        * Select *"Player Settings"*, navigate to *"Other Settings -> Scripting Define Symbols"* and add `SERVER;UNITY_SERVER` to the symbols. Remember to select Apply after setting these!
         * Build to the *LinuxServerBuild* folder with the **exact** name *GameLiftExampleServer*
     * Run the script to deploy build and GameLift resources (`cd FleetDeployment && sh deployBuildAndUpdateGameLiftResources.sh && cd ..`)
     * This will take some time (up to 40 minutes) as the fleet instance AMI will be built and all the GameLift resources deployed. You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation
@@ -90,7 +91,8 @@ The architecture diagram introduced here focuses on the GameLift resources of th
     * **Unity 2021:** 
         * For Unity 2021 you need to manually create a Dedicated Server platform build as scripted builds are not supported for the dedicated services
         * Select *"File -> Build Settings"*
-        * Switch the platform to Dedicated Server and select Linux
+        * Switch the platform to Dedicated Server and select Linux. NOTE: This is important to do before the next step, as Unity will lose the Scripting define symbols when you switch to Dedicated Server
+        * Select *"Player Settings"*, navigate to *"Other Settings -> Scripting Define Symbols"* and add `SERVER;UNITY_SERVER` to the symbols. Remember to select Apply after setting these!
         * Build to the *LinuxServerBuild* folder with the **exact** name *GameLiftExampleServer*
     * Go to *FleetDeployment* folder in Powershell and run the script `deployBuildAndUpdateGameLiftResources.ps1` to deploy the build and GameLift resources.
     * This will take some time (up to 40 minutes) as the fleet instance AMI will be built and all the GameLift resources deployed. You should see all the resources created in the GameLift console (Fleet, Alias, Build, Queue, Matchmaking Rule Set and Matchmaking Configuration) as well as in CloudFormation

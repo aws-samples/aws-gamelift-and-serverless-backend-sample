@@ -26,7 +26,7 @@ The architecture diagram introduced here focuses on the GameLift resources of th
 
 # Preliminary Setup
 
-1. **Install Unity3D 2019 or Unity 2020**
+1. **Install Unity3D 2020 or Unity 2021**
     * Use the instructions on Unity website for installing: [Unity Hub Installation](https://unity.com/download)
     * Make sure to install the **Linux build support** for server builds, and your **local build support** (MacOS or Windows) for local client builds. In Unity Hub, go to *Installs*, select *Add Modules* from the configuration menu and add both Linux Build Support (Mono), and your local platform (Windows/Mac).
     * **Don't open the Unity project yet** as we still need to download and build dependencies!

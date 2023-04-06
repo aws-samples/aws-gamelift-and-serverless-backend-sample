@@ -79,9 +79,6 @@ public class GameLift : MonoBehaviour
                     //to the game server along with a game session object containing game properties 
                     //and other settings.
 
-                    // Activate the session
-                    GameLiftServerAPI.ActivateGameSession();
-
                     //Start waiting for players
                     this.gameSessionInfoReceived = true;
                     this.gameSessionId = gameSession.GameSessionId;
@@ -99,6 +96,9 @@ public class GameLift : MonoBehaviour
                     System.Console.WriteLine("Matchmaker data New session:" + gameSession.MatchmakerData);
                     this.matchmakerData = MatchmakerData.FromJson(gameSession.MatchmakerData);
                     this.backfillTicketID = this.matchmakerData.AutoBackfillTicketId;
+
+                    // Activate the session
+                    GameLiftServerAPI.ActivateGameSession();
 
                 },
                 (gameSession) => {

@@ -57,6 +57,67 @@ public class GameLift : MonoBehaviour
         return port;
     }
 
+    //Respond to new game session activation request. GameLift sends activation request 
+    //to the game server along with a game session object containing game properties 
+    //and other settings.
+    void OnStartGameSessionDelegate(GameSession gameSession)
+    {
+        //Start waiting for players
+        this.gameSessionInfoReceived = true;
+        this.gameSessionId = gameSession.GameSessionId;
+
+        //Set the game session tag (CloudWatch dimension) for custom metrics
+        string justSessionId = this.gameSessionId.Split('/')[2];
+        this.statsdClient.SetCommonTagString("#gamesession:" + justSessionId);
+
+        //Send session started to CloudWatch just for testing
+        this.statsdClient.SendCounter("game.SessionStarted", 1);
+
+        //Log the session ID
+        System.Console.WriteLine("Game Session ID: " + justSessionId);
+
+        System.Console.WriteLine("Matchmaker data New session:" + gameSession.MatchmakerData);
+        this.matchmakerData = MatchmakerData.FromJson(gameSession.MatchmakerData);
+        this.backfillTicketID = this.matchmakerData.AutoBackfillTicketId;
+
+        // Activate the session
+        GameLiftServerAPI.ActivateGameSession();
+    }
+
+    //Respond to game session updates
+    void OnUpdateGameSessionDelegate ( UpdateGameSession updateGameSession )
+    {
+        System.Console.WriteLine("backfill ticked ID update session:" + updateGameSession.BackfillTicketId);
+
+        if (updateGameSession.BackfillTicketId != null)
+        {
+            System.Console.WriteLine("Updating backfill ticked ID: " + updateGameSession.BackfillTicketId);
+            this.backfillTicketID = updateGameSession.BackfillTicketId;
+        }
+    }
+
+    //OnProcessTerminate callback. GameLift invokes this callback before shutting down 
+    //an instance hosting this game server. It gives this game server a chance to save
+    //its state, communicate with services, etc., before being shut down. 
+    void OnProcessTerminateDelegate()
+    {
+        //In this case, we simply tell GameLift we are indeed going to shut down.
+        GameLiftServerAPI.ProcessEnding();
+        Application.Quit();
+    }
+
+    //This is the HealthCheck callback.
+    //GameLift invokes this callback every 60 seconds or so.
+    //Here, a game server might want to check the health of dependencies and such.
+    //Simply return true if healthy, false otherwise.
+    //The game server has 60 seconds to respond with its health status. 
+    //GameLift will default to 'false' if the game server doesn't respond in time.
+    bool OnHealthCheckDelegate()
+    {
+        //In this case, we're always healthy as long as the process is running
+        return true;
+    }
+
     // Called when the monobehaviour is created
     public void Awake()
     {
@@ -74,62 +135,10 @@ public class GameLift : MonoBehaviour
         if (initSDKOutcome.Success)
         {
             ProcessParameters processParameters = new ProcessParameters(
-                (gameSession) => {
-                    //Respond to new game session activation request. GameLift sends activation request 
-                    //to the game server along with a game session object containing game properties 
-                    //and other settings.
-
-                    //Start waiting for players
-                    this.gameSessionInfoReceived = true;
-                    this.gameSessionId = gameSession.GameSessionId;
-
-                    //Set the game session tag (CloudWatch dimension) for custom metrics
-                    string justSessionId = this.gameSessionId.Split('/')[2];
-                    this.statsdClient.SetCommonTagString("#gamesession:" + justSessionId);
-
-                    //Send session started to CloudWatch just for testing
-                    this.statsdClient.SendCounter("game.SessionStarted", 1);
-
-                    //Log the session ID
-                    System.Console.WriteLine("Game Session ID: " + justSessionId);
-
-                    System.Console.WriteLine("Matchmaker data New session:" + gameSession.MatchmakerData);
-                    this.matchmakerData = MatchmakerData.FromJson(gameSession.MatchmakerData);
-                    this.backfillTicketID = this.matchmakerData.AutoBackfillTicketId;
-
-                    // Activate the session
-                    GameLiftServerAPI.ActivateGameSession();
-
-                },
-                (gameSession) => {
-                    //Respond to game session updates
-
-                    System.Console.WriteLine("backfill ticked ID update session:" + gameSession.BackfillTicketId);
-
-                    if (gameSession.BackfillTicketId != null)
-                    {
-                        System.Console.WriteLine("Updating backfill ticked ID: " + gameSession.BackfillTicketId);
-                        this.backfillTicketID = gameSession.BackfillTicketId;
-                    }
-                },
-                () => {
-                    //OnProcessTerminate callback. GameLift invokes this callback before shutting down 
-                    //an instance hosting this game server. It gives this game server a chance to save
-                    //its state, communicate with services, etc., before being shut down. 
-                    //In this case, we simply tell GameLift we are indeed going to shut down.
-                    GameLiftServerAPI.ProcessEnding();
-                    Application.Quit();
-                },
-                () => {
-                    //This is the HealthCheck callback.
-                    //GameLift invokes this callback every 60 seconds or so.
-                    //Here, a game server might want to check the health of dependencies and such.
-                    //Simply return true if healthy, false otherwise.
-                    //The game server has 60 seconds to respond with its health status. 
-                    //GameLift will default to 'false' if the game server doesn't respond in time.
-                    //In this case, we're always healthy!
-                    return true;
-                },
+                this.OnStartGameSessionDelegate,
+                this.OnUpdateGameSessionDelegate,
+                this.OnProcessTerminateDelegate,
+                this.OnHealthCheckDelegate,
                 //Here, the game server tells GameLift what port it is listening on for incoming player 
                 //connections. We will use the port received from command line arguments
                 listeningPort,

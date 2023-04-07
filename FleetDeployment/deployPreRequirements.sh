@@ -8,7 +8,7 @@ getstatusofstack() {
 	aws cloudformation describe-stacks --region $region --stack-name $1 --query Stacks[].StackStatus --output text 2>/dev/null
 }
 
-# Deploy the resources with CloudFromation
+# Deploy the resources with CloudFormation
 stackstatus=$(getstatusofstack GameLiftExamplePreRequirements)
 if [ -z "$stackstatus" ]; then
   echo "Creating pre-requirements stack (this will take some time)..."

@@ -25,7 +25,7 @@ query+='`].BuildId'
 buildid=$(aws gamelift list-builds --query $query --output text --region $region)
 echo $buildid
 
-# Deploy rest of the resources with CloudFromation
+# Deploy rest of the resources with CloudFormation
 stackstatus=$(getstatusofstack GameliftExampleResources)
 if [ -z "$stackstatus" ]; then
   echo "Creating stack for example fleet (this will take some time)... NOTE: The waiter will likely time out as Cloud9 has a 15 minute expiration for AWS tokens. PLEASE CHECK that the stack is complete in CloudFormation before moving to the next step"

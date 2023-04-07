@@ -61,8 +61,8 @@ See [Reference Architecture for Multiplayer Session-based Game Hosting](https://
         * Configure the CLI: [AWS CLI Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration)
     2. **Install SAM CLI**
         * Follow these instructions to install the Serverless Application Model (SAM) CLI: [SAM CLI Installation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-    3. **Install Node.js 14.6.0**
-        * Required for the SAM build: [Node.js Downloads](https://nodejs.org/de/blog/release/v14.16.0/). If you need help switching between Node versions, you can use [nvm] to do that easily (https://github.com/nvm-sh/nvm).
+    3. **Install Node.js 16.20.0(LTS)**
+        * Required for the SAM build: [Node.js Downloads](https://nodejs.org/en/blog/release/v16.20.0). If you need help switching between Node versions, you can use [nvm] to do that easily (https://github.com/nvm-sh/nvm).
 3. **Select deployment Region**
     * The default AWS Regions for the solution are us-east-1 for backend and GameLift home region and eu-west-2 for GameLift secondary region. The fastest option is to not modify these. The solution can however be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
 

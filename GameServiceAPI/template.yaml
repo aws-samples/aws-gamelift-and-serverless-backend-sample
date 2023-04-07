@@ -126,7 +126,7 @@ Resources:
     Properties:
       CodeUri: gameservice/
       Handler: requestmatchmaking.requestMatchMaking
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Policies:
         - !Ref GameLiftAccessPolicy
         - !Ref DynamoDBAccessPolicy
@@ -142,7 +142,7 @@ Resources:
     Properties:
       CodeUri: gameservice/
       Handler: requestmatchstatus.requestMatchStatus
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Policies:
         - !Ref GameLiftAccessPolicy
         - !Ref DynamoDBAccessPolicy
@@ -159,7 +159,7 @@ Resources:
     Properties:
       CodeUri: gameservice/
       Handler: processmatchmakingevents.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Policies:
         - !Ref DynamoDBAccessPolicy
       Events:

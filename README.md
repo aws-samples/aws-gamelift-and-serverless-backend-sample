@@ -64,7 +64,7 @@ See [Reference Architecture for Multiplayer Session-based Game Hosting](https://
     3. **Install Node.js 16.20.0(LTS)**
         * Required for the SAM build: [Node.js Downloads](https://nodejs.org/en/blog/release/v16.20.0). If you need help switching between Node versions, you can use [nvm] to do that easily (https://github.com/nvm-sh/nvm).
 3. **Select deployment Region**
-    * The default AWS Regions for the solution are us-east-1 for backend and GameLift home region and eu-west-2 for GameLift secondary region. The fastest option is to not modify these. The solution can however be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
+    * The default AWS Regions for the solution are us-east-1 for backend and GameLift home region and us-west-2 for GameLift secondary region. The fastest option is to not modify these. The solution can however be deployed in any AWS Region that supports Amazon GameLift FlexMatch. For details see the [Amazon GameLift FAQ](https://aws.amazon.com/gamelift/faq/) and look for "In which AWS Regions can I place a FlexMatch matchmaker?"
 
 # Deployment with Bash Scripts
 

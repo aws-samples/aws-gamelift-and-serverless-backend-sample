@@ -12,7 +12,7 @@ Parameters:
   PreRequirementsStackName:
     Type: String
     Default: GameLiftExamplePreRequirements
-    Description: The name of the stack that defines the role for the gamelift instances
+    Description: The name of the stack that defines the role for the GameLift instances
   BackendStackName:
     Type: String
     Default: GameLiftExampleServerlessGameBackend

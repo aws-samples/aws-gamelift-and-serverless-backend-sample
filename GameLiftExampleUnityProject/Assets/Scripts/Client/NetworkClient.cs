@@ -96,9 +96,12 @@ public class NetworkClient
 		if (client == null) return;
 		var messages = NetworkProtocol.Receive(client);
         
-		foreach (SimpleMessage msg in messages)
+		if(messages != null)
 		{
-			HandleMessage(msg);
+			foreach (SimpleMessage msg in messages)
+			{
+				HandleMessage(msg);
+			}
 		}
 	}
 

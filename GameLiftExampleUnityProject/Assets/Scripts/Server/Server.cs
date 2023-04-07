@@ -82,7 +82,6 @@ public class Server : MonoBehaviour
     // This is the interval we're running the simulation and processing messages on the server
     void FixedUpdate()
     {
-
         // Update the Network server to check client status and get messages
         server.Update();
 
@@ -273,12 +272,15 @@ public class NetworkServer
                     this.clientsToRemove.Add(tcpClient);
                 }
                 var messages = NetworkProtocol.Receive(tcpClient);
-                foreach(SimpleMessage message in messages)
+                if(messages != null)
                 {
-                    //System.Console.WriteLine("Received message: " + message.message + " type: " + message.messageType);
-                    bool disconnect = HandleMessage(playerIdx, tcpClient, message);
-                    if (disconnect)
-                        this.clientsToRemove.Add(tcpClient);
+                    foreach(SimpleMessage message in messages)
+                    {
+                        //System.Console.WriteLine("Received message: " + message.message + " type: " + message.messageType);
+                        bool disconnect = HandleMessage(playerIdx, tcpClient, message);
+                        if (disconnect)
+                            this.clientsToRemove.Add(tcpClient);
+                    }
                 }
             }
             catch (Exception e)

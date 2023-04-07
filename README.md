@@ -45,7 +45,7 @@ The project contains:
 
 The architecture diagram introduced here focuses on the serverless backend but it also includes the GameLift components on a high level. See the Unity and C++ Readme-files for detailed GameLift resource diagrams.
 
-See [Reference Architecture for Multiplayer Session-based Game Hosting](https://d1.awsstatic.com/architecture-diagrams/ArchitectureDiagrams/multiplayer-session-based-game-hosting-on-aws-ra.pdf?did=wp_card&trk=wp_card) for a step by step overview of the flow of events.
+See [Reference Architecture for Multiplayer Session-based Game Hosting](https://docs.aws.amazon.com/architecture-diagrams/latest/multiplayer-session-based-game-hosting-on-aws/multiplayer-session-based-game-hosting-on-aws.html) for a step by step overview of the flow of events.
 
 ### Serverless Backend
 

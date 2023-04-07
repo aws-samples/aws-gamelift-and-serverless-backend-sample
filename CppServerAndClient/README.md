@@ -130,7 +130,7 @@ The Game Client implements a minimal client to get Cognito identity and credenti
       * Connect to Amazon Cognito to get a Cognito identity and credentials (NOTE: This will always get a new identity, you should cache this in your own game client)
       * Check the latencies against the two Regions by doing three HTTP requests against DynamoDB endpoints in the Regions. The first request is used to establish an HTTP connection and the two requests after that to check the average latency over TCP (now that the connection is already open).
       * Sign the request and call the `requestmatchmaking` API with the latencies
-      * Sign the request and call the `checkmatchstatus` API with the matchmaking ticket ID with a 2s interval for 20 seconds (after this the matchmaking has timed out)
+      * Sign the request and call the `requestmatchstatus` API with the matchmaking ticket ID with a 2s interval for 20 seconds (after this the matchmaking has timed out)
       * Connect to the server with a TCP client and send the Player Session ID for validation
       * Receive the validation result and stop the client
 

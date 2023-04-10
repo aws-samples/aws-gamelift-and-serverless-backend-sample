@@ -16,7 +16,7 @@ public class ClientServerConfiguration : Editor
 
         UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 
-        Debug.LogWarning("Complilation will start soon and you need to wait for that to finish before building the server...");
+        Debug.LogWarning("Compilation will start soon and you need to wait for that to finish before building the server...");
     }
 
     [MenuItem("GameLift/SetAsClientBuild")]

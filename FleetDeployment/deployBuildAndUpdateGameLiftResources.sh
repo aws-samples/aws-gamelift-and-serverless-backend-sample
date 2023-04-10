@@ -28,7 +28,7 @@ query+='`].BuildId'
 buildid=$(aws gamelift list-builds --query $query --output text --region $region)
 echo $buildid
 
-# Deploy rest of the resources with CloudFromation
+# Deploy rest of the resources with CloudFormation
 stackstatus=$(getstatusofstack GameliftExampleResources)
 if [ -z "$stackstatus" ]; then
   echo "Creating stack for example fleet (this will take up to 40 minutes as we deploy to multiple regions)..."

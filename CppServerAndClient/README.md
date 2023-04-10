@@ -40,7 +40,7 @@ The easiest way to test the example is to use an **AWS Cloud9** environment. [AW
         * Select Actions -> Modify Volume, set the size to 40 and click "Modify" and then "Yes"
         * Go back to instances and select the Cloud9 instance checkbox
         * Select Instance State -> Reboot Instance and click "Reboot"
-    * Go Back to the Cloud9 enviroment tab and you should see it connecting back after the reboot. We now have the development environment set up with sufficient disk space for building all the SDKs!
+    * Go Back to the Cloud9 environment tab and you should see it connecting back after the reboot. We now have the development environment set up with sufficient disk space for building all the SDKs!
 2. **Clone this repository to the Cloud9 instance**
     * Select the terminal in the bottom of the editor in Cloud9
     * Run `git clone https://github.com/aws-samples/aws-gamelift-and-serverless-backend-sample.git`
@@ -63,13 +63,13 @@ The backend deployment steps 1-3 are here for convenience, you might have done t
     * Set the value of `String backendApiUrl` to the endpoint created by the backend deployment. You can find this endpoint from the `GameLiftExampleServerlessGameBackend` Stack Outputs in CloudFormation, from the SAM CLI stack deployment outputs or from the API Gateway console (make sure to have the `/Prod/` in the url)
     * Set the value of `String identityPoolId` to the identity pool created by the Pre-Requirements deployment. You can find the ARN in the CloudFormation stack, in the Amazon Cognito console or as the output of Step 2.
     * Set the values of `const char* REGION` and `String regionString` to the applicable values of your selected main region. Set the value of `String secondaryRegionString` to a GameLift supported Location region. These two regions will be used based on the latencies provided by the clients to the matchmaking.
-4. **Download, Build and setup the GameLift C++ Server SDK**
+4. **Download, Build and set up the GameLift C++ Server SDK**
     * Open the CppServerAndClient folder (`cd CppServerAndClient`) in the Cloud9 terminal
     * Run the script `./SetupGameLiftSDK.sh`to download, build and configure the GameLift Server SDK. This script will copy the relevant files under the Server project as well.
     * **NOTE**: This will take some time as it downloads a number of dependencies and builds the SDK
     * Make sure this completes without errors by checking that the `CppServerAndClient/Server/` folder now has subfolders `include` and `lib`
 5. **Download and Build the AWS SDK for C++**
-    * Run the script `./SetupAWSSDK.sh` to download, build and configure the AWS SDK for C++. This script will make the AWS Core and Amazon Cognito libraries available on this maschine so we don't need to copy them anywhere separately.
+    * Run the script `./SetupAWSSDK.sh` to download, build and configure the AWS SDK for C++. This script will make the AWS Core and Amazon Cognito libraries available on this machine, so we don't need to copy them anywhere separately.
     * **NOTE**: This will also take some time as it downloads the whole SDK and builds the relevant parts
 6. **Build the server and Deploy the build and the GameLift resources** (`CppServerAndClient/BuildAndDeployCppGameServerAndUpdateGameLiftResources.sh`)
     * You can test that the server compiles correctly by going to `CppServerAndClient/Server/` in the terminal and running `./build.sh`
@@ -110,7 +110,7 @@ The Game Server is a C++ application that makes use of the [GameLift Server SDK]
 
 **NOTE**: The purpose of this example is not to demonstrate TCP client-server networking architecture and you will need to replace the socket implementation with a properly threaded/asynchronous design, commonly implemented with libraries such as Boost.Asio or higher level game networking libraries.
 
-The game server writes output using the same log file structure as the main example. This will allow the CloudWatch Agent installed with the install.sh script on the GameLift Fleet instances to push logs for the two servers running on every instance independently to CloudWatch Logs. You can find the server output logs in CloudWatch Logs in the log group "GameServerLogs".
+The game server writes output using the same log file structure as the main example. This will allow the CloudWatch Agent installed with the `install.sh` script on the GameLift Fleet instances to push logs for the two servers running on every instance independently to CloudWatch Logs. You can find the server output logs in CloudWatch Logs in the log group "GameServerLogs".
 
 **Code files:**
   * `Server.h`: Declares the Server class and all the related GameLift callbacks
@@ -130,7 +130,7 @@ The Game Client implements a minimal client to get Cognito identity and credenti
       * Connect to Amazon Cognito to get a Cognito identity and credentials (NOTE: This will always get a new identity, you should cache this in your own game client)
       * Check the latencies against the two Regions by doing three HTTP requests against DynamoDB endpoints in the Regions. The first request is used to establish an HTTP connection and the two requests after that to check the average latency over TCP (now that the connection is already open).
       * Sign the request and call the `requestmatchmaking` API with the latencies
-      * Sign the request and call the `checkmatchstatus` API with the matchmaking ticket ID with a 2s interval for 20 seconds (after this the matchmaking has timed out)
+      * Sign the request and call the `requestmatchstatus` API with the matchmaking ticket ID with a 2s interval for 20 seconds (after this the matchmaking has timed out)
       * Connect to the server with a TCP client and send the Player Session ID for validation
       * Receive the validation result and stop the client
 
@@ -142,7 +142,7 @@ To delete the resources created in the example, go to **CloudFormation console**
 2. GameLiftExamplePreRequirements
 3. GameLiftExampleServerlessGameBackend
 
-In addition you can empty and delete the the bucket that contains the deployment assets for SAM:
+In addition, you can empty and delete the bucket that contains the deployment assets for SAM:
 
 1. Go to S3 Console
 2. Select the bucket name you selected when deploying

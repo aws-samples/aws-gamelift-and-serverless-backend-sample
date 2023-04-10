@@ -10,7 +10,7 @@
     + [Serverless Backend Service](#serverless-backend-service)
   * [License](#license)
 
-This repository contains a solution for multiplayer session-based game hosting on AWS leveraging Amazon GameLift, a fully managed game server hosting solution, with a serverless backend service. The solution is designed for getting quickly started with multiplayer game development on MacOS and Windows. It includes infrastructure as code automation, as well as deployment scripts to deploy all the required resources, and supports Unity and custom C++ engines.
+This repository contains a solution for multiplayer session-based game hosting on AWS leveraging Amazon GameLift, a fully managed game server hosting solution, with a serverless backend service. The solution is designed for getting quickly started with multiplayer game development on macOS and Windows. It includes infrastructure as code automation, as well as deployment scripts to deploy all the required resources, and supports Unity and custom C++ engines.
 
 This Readme includes the architecture overview, as well as deployment instructions and documentation for the serverless backend services of the solution. You can then branch out to the Unity and C++ specific Readmes ([Unity deployment README](README_UnityClientServer.md) or [C++ deployment README](CppServerAndClient/README.md)) as needed for the game client, game server setup and GameLift resources setup.
 
@@ -22,7 +22,7 @@ This Readme includes the architecture overview, as well as deployment instructio
 * Leverages FlexMatch latency-based matchmaking
 * Runs on Amazon Linux 2 on the GameLift service in two regional locations
 * Uses Cognito Identity Pools to store user identities and authenticate the users against the backend
-* Deployed with shell (MacOS) or PowerShell (Windows) scripts
+* Deployed with shell (macOS) or PowerShell (Windows) scripts
 * Includes configuration to push custom logs and metrics to CloudWatch with CloudWatch Agent
 * Includes automated CloudWatch Dashboards for both the backend and game server resources
 * Client works on multiple platforms including mobile
@@ -45,7 +45,7 @@ The project contains:
 
 The architecture diagram introduced here focuses on the serverless backend but it also includes the GameLift components on a high level. See the Unity and C++ Readme-files for detailed GameLift resource diagrams.
 
-See [Reference Architecture for Multiplayer Session-based Game Hosting](https://d1.awsstatic.com/architecture-diagrams/ArchitectureDiagrams/multiplayer-session-based-game-hosting-on-aws-ra.pdf?did=wp_card&trk=wp_card) for a step by step overview of the flow of events.
+See [Reference Architecture for Multiplayer Session-based Game Hosting](https://docs.aws.amazon.com/architecture-diagrams/latest/multiplayer-session-based-game-hosting-on-aws/multiplayer-session-based-game-hosting-on-aws.html) for a step by step overview of the flow of events.
 
 ### Serverless Backend
 
@@ -108,14 +108,14 @@ The backend service is Serverless and built with Serverless Application Model. T
 
 The backend contains three key Lambda functions: **RequestMatchmakingFunction** and **RequestMatchStatusFunction** are defined as Node.js scripts within the gameservice folder. These functions are called by the API Gateway defined in the template that uses AWS_IAM authentication. Only signed requests are allowed and the different client implementations use Cognito credentials to sign the requests. This way we also have their **Cognito identity** available within Lambda functions. The identity is used to securely identify users and access their data in DynamoDB.
 
-**ProcessMatchmakingEventsFunction** is triggered by Amazon SNS events published by GameLift FlexMatch. It will catch the MatchmakingSucceeded events and write the results in DynamoDB Table *"GameLiftExampleMatchmakingTickets"*. RequestMatchStatusFunction will use the DynamoDB table to check if a ticket has succeeded matchmaking. This way we don't need to use the DescribeMatchmaking API of GameLift as the API can easily throttle with a large player count as is not designed for production use. The DynamoDB Table also has a *TTL* field and and TTL configuration, which means the tickets will be automatically removed after one hour of creation.
+**ProcessMatchmakingEventsFunction** is triggered by Amazon SNS events published by GameLift FlexMatch. It will catch the MatchmakingSucceeded events and write the results in DynamoDB Table *"GameLiftExampleMatchmakingTickets"*. RequestMatchStatusFunction will use the DynamoDB table to check if a ticket has succeeded matchmaking. This way we don't need to use the DescribeMatchmaking API of GameLift as the API can easily throttle with a large player count as is not designed for production use. The DynamoDB Table also has a *TTL* field and TTL configuration, which means the tickets will be automatically removed after one hour of creation.
 
 The SAM template defines IAM Policies to allow the Lambda functions to access both GameLift to request matchmaking, as well as DynamoDB to access the player data. It is best practice to never allow game clients to access these resources directly as this can open different attack vectors to your resources.
 
 ### GameLiftExamplePreRequirements Stack
 
   * an **IAM Role** for the GameLift Fleet EC2 instances that allows access to CloudWatch to push logs and custom metrics. It is created already at this point to configure the CloudWatch Agent before deploying the GameLift fleet.
-  * a **Cognito Identity Pool** that will be used to store player identities and the associated **IAM Roles** for unauthenticated and authenticated users, which clients use to access the backend APIs through API Gateway. We don't authenticate users in the example but you could connect their Facebook, Google or Apple identitities, or any custom identities to by leveraging [Cognito external identities](https://docs.aws.amazon.com/cognito/latest/developerguide/external-identity-providers.html).
+  * a **Cognito Identity Pool** that will be used to store player identities and the associated **IAM Roles** for unauthenticated and authenticated users, which clients use to access the backend APIs through API Gateway. We don't authenticate users in the example, but you could connect their Facebook, Google or Apple identities, or any custom identities to by leveraging [Cognito external identities](https://docs.aws.amazon.com/cognito/latest/developerguide/external-identity-providers.html).
   * a **CloudWatch Dashboard** (*GameLift-Game-Backend-Metrics*) that aggregates a number of metrics from the backend including API Gateway, Lambda and DynamoDB metrics.
 
 # License

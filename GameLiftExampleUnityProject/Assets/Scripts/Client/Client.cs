@@ -211,7 +211,7 @@ public class Client : MonoBehaviour
             // Get latencies to regions
             this.MeasureLatencies();
 
-            // Connect to the server now that we have our identity, credendtials and latencies
+            // Connect to the server now that we have our identity, credentials and latencies
             StartCoroutine(ConnectToServer());
         }
         
